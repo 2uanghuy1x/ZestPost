@@ -1,66 +1,96 @@
-﻿using ZestPost.Service;
+using System;
+using System.Windows;
+using ZestPost.Controller;
+using ZestPost.DbService;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.Threading.Tasks;
 
 namespace ZestPost
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
-        private readonly EventHandlerService _eventHandlerService;
+        private readonly AccountController _accountController;
+
         public MainWindow()
         {
             InitializeComponent();
-            //Loaded += MainWindow_Loaded;
-            _eventHandlerService = new EventHandlerService();
+            _accountController = AccountController.Instance();
             InitializeWebView();
         }
+
         private async void InitializeWebView()
         {
             await WebView.EnsureCoreWebView2Async(null);
-
-            WebView.CoreWebView2.WebMessageReceived += (s, e) =>
-            {
-                WebView.CoreWebView2.WebMessageReceived += (sender, args) =>
-                {
-                    try
-                    {
-                        string message = args.WebMessageAsJson;
-                        var innerJson = JsonConvert.DeserializeObject<string>(args.WebMessageAsJson);
-                        var eventData = JsonConvert.DeserializeObject<EventData>(innerJson);
-                        if (eventData == null)
-                        {
-                            throw new ArgumentNullException(nameof(eventData));
-                            // Hoặc xử lý theo cách khác, như return hoặc ghi log
-                        }
-                        _eventHandlerService.HandleEvent(eventData);
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"Lỗi khi nhận dữ liệu: {ex.Message}");
-                    }
-                };
-            };
+            // Thiết lập đường dẫn đến ứng dụng React của bạn
+            // Đảm bảo ứng dụng React đang chạy trên port 3000
+            WebView.CoreWebView2.Navigate("http://localhost:3000"); 
+            WebView.CoreWebView2.WebMessageReceived += CoreWebView2_WebMessageReceived;
         }
 
-        private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        private async void CoreWebView2_WebMessageReceived(object sender, Microsoft.Web.WebView2.Core.CoreWebView2WebMessageReceivedEventArgs args)
         {
             try
             {
-                // Await the initialization of WebView2
-                await WebView.EnsureCoreWebView2Async(null);
+                string jsonMessage = args.TryGetWebMessageAsString();
+                var message = JObject.Parse(jsonMessage);
+                string action = message["action"]?.ToString();
+                JToken payload = message["payload"];
 
-                // Subscribe to the WebMessageReceived event
-                WebView.CoreWebView2.WebMessageReceived += (sender, args) =>
+                switch (action)
                 {
-                    var message = args.WebMessageAsJson;
-                    MessageBox.Show($"Received from React: {message}");
-                };
+                    case "getAccounts":
+                        var accounts = _accountController.GetListAccount();
+                        SendDataToReact("accountsData", accounts);
+                        break;
+
+                    case "addAccount":
+                        var newAccount = payload?.ToObject<AccountFB>();
+                        if (newAccount != null)
+                        {
+                            newAccount.Id = Guid.NewGuid();
+                            if (_accountController.InsertAccount(newAccount))
+                            {
+                                SendDataToReact("actionSuccess", null);
+                            }
+                        }
+                        break;
+
+                    case "updateAccount":
+                        var updatedAccount = payload?.ToObject<AccountFB>();
+                        if (updatedAccount != null)
+                        {
+                            if (await _accountController.UpdateAccountAsync(updatedAccount))
+                            {
+                                SendDataToReact("actionSuccess", null);
+                            }
+                        }
+                        break;
+
+                    case "deleteAccount":
+                        var deleteAccount = payload?.ToObject<AccountFB>();
+                        if (deleteAccount != null)
+                        {
+                            if (_accountController.DeleteAccount(deleteAccount))
+                            {
+                                SendDataToReact("actionSuccess", null);
+                            }
+                        }
+                        break;
+                }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error initializing WebView2: {ex.Message}");
+                 // Gửi lỗi về React để debug nếu cần
+                 SendDataToReact("error", ex.Message);
             }
+        }
+
+        private void SendDataToReact(string action, object payload)
+        {
+            var data = new { action, payload };
+            string jsonResponse = JsonConvert.SerializeObject(data);
+            WebView.CoreWebView2.PostWebMessageAsJson(jsonResponse);
         }
     }
 }
