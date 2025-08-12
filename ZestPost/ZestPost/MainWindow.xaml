@@ -1,0 +1,9 @@
+﻿<Window x:Class="ZestPost.MainWindow"
+       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:webview2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+        Title="My Desktop App" Height="450" Width="800">
+    <Grid>
+        <webview2:WebView2 Name="WebView" Source="http://localhost:3000" />
+    </Grid>
+</Window>

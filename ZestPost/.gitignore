@@ -1,0 +1,5 @@
+/ZestPost/obj/*
+/ZestPost/bin/*
+/.vs/*
+/*.pdf
+/*.bmpr
