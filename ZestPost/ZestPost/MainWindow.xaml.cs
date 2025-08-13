@@ -1,10 +1,4 @@
-using System;
-using System.Windows;
 using ZestPost.Controller;
-using ZestPost.DbService.Entity;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System.Threading.Tasks;
 
 namespace ZestPost
 {
@@ -26,7 +20,7 @@ namespace ZestPost
             await WebView.EnsureCoreWebView2Async(null);
             // Thiết lập đường dẫn đến ứng dụng React của bạn
             // Đảm bảo ứng dụng React đang chạy trên port 3000
-            WebView.CoreWebView2.Navigate("http://localhost:3000"); 
+            WebView.CoreWebView2.Navigate("http://localhost:3000");
             WebView.CoreWebView2.WebMessageReceived += CoreWebView2_WebMessageReceived;
         }
 
@@ -34,7 +28,7 @@ namespace ZestPost
         {
             try
             {
-                string jsonMessage = args.TryGetWebMessageAsString();
+                string jsonMessage = args.WebMessageAsJson.ToString();
                 var message = JObject.Parse(jsonMessage);
                 string action = message["action"]?.ToString();
                 JToken payload = message["payload"];
@@ -77,7 +71,7 @@ namespace ZestPost
                             }
                         }
                         break;
-                    
+
                     // Category Actions
                     case "getCategories":
                         var categories = _categoryController.GetAllCategory();
@@ -118,8 +112,8 @@ namespace ZestPost
             }
             catch (Exception ex)
             {
-                 // Gửi lỗi về React để debug nếu cần
-                 SendDataToReact("error", ex.Message);
+                // Gửi lỗi về React để debug nếu cần
+                SendDataToReact("error", ex.Message);
             }
         }
 

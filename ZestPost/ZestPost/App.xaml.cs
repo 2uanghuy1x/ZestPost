@@ -15,7 +15,10 @@ namespace ZestPost
             base.OnStartup(e);
 
             string dataDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data");
-            Directory.CreateDirectory(dataDirectory);
+            if (!Directory.Exists(dataDirectory))
+            {
+                Directory.CreateDirectory(dataDirectory);
+            }
             string dbPath = Path.Combine(dataDirectory, "zestPost.db");
 
             var services = new ServiceCollection();

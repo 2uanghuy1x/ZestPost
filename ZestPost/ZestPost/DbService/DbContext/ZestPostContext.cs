@@ -18,5 +18,22 @@ namespace ZestPost.DbService
             : base(options)
         {
         }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+                string dataDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data");
+                if (!Directory.Exists(dataDirectory))
+                {
+                    Directory.CreateDirectory(dataDirectory);
+                }
+                string dbPath = Path.Combine(dataDirectory, "zestPost.db");
+                // Configure the database to be used (e.g., SQLite)
+                // Assumes a database file named "zestpost.db" in the application's root directory.
+                optionsBuilder.UseSqlite($"Data Source={dbPath}");
+            }
+        }
+
     }
 }

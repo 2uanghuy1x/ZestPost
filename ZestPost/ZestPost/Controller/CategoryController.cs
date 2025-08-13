@@ -1,8 +1,4 @@
 using Microsoft.Extensions.Caching.Memory;
-using System.Linq;
-using ZestPost.Base.Model;
-using ZestPost.DbService.DbContext;
-using ZestPost.DbService.Entity;
 
 namespace ZestPost.Controller
 {
@@ -41,7 +37,7 @@ namespace ZestPost.Controller
             catch (Exception ex)
             {
                 // Omitted for brevity: logging
-                return null;
+                return [];
             }
         }
         // Omitted for brevity: Other existing methods like GetAllCategory(string typeCate), etc.
@@ -55,12 +51,12 @@ namespace ZestPost.Controller
                 {
                     using (ZestPostContext context = new ZestPostContext())
                     {
-                        if (context.Categories.FirstOrDefault(c => c.Name == cate.Name) == null)
+                        if (context.Categories.FirstOrDefault(c => c.Name == cate.Name) != null)
                         {
-                            context.Categories.Add(cate);
-                            // Omitted for brevity: cache invalidation
-                            context.SaveChanges();
+                            return false;
                         }
+                        context.Categories.Add(cate);
+                        context.SaveChanges();
                     }
                     return true;
                 }
@@ -77,7 +73,6 @@ namespace ZestPost.Controller
                     using (ZestPostContext context = new ZestPostContext())
                     {
                         context.Categories.Update(cate);
-                        // Omitted for brevity: cache invalidation
                         context.SaveChanges();
                     }
                     return true;
@@ -98,10 +93,10 @@ namespace ZestPost.Controller
                     {
                         DeleteAccountByCategory(categoryToDelete);
                         DeleteArticleByCategory(categoryToDelete);
-                        
+
                         // Use Remove for a single entity
                         context.Categories.Remove(categoryToDelete);
-                        
+
                         // Omitted for brevity: cache invalidation
                         context.SaveChanges();
                         return true;
