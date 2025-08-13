@@ -14,20 +14,20 @@ function CategoryCrud() {
             if (message.action === 'categoriesData') {
                 setCategories(message.payload);
             }
+            // Remove the csharpApi.getCategories() call from here
             if (message.action === 'actionSuccess') {
-                csharpApi.getCategories();
                 setIsModalOpen(false);
                 setCurrentCategory(null);
             }
         };
 
         csharpApi.addEventListener('message', handleMessage);
-        csharpApi.getCategories();
+        csharpApi.getCategories(); // Initial fetch
 
         return () => {
             csharpApi.removeEventListener('message', handleMessage);
         };
-    }, []);
+    }, []); // Empty dependency array means it runs only once on mount
 
     const handleAddNew = () => {
         setCurrentCategory({ name: '', type: '' });

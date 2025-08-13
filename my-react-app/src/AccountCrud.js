@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { csharpApi } from './api';
-import './AccountCrud.css'; // We will create this CSS file next
+import './AccountCrud.css';
 
 function AccountCrud() {
     const [accounts, setAccounts] = useState([]);
@@ -18,21 +18,21 @@ function AccountCrud() {
             if (message.action === 'categoriesData') {
                 setCategories(message.payload);
             }
+            // Remove the csharpApi.getAccounts() call from here
             if (message.action === 'actionSuccess') {
-                csharpApi.getAccounts();
                 setIsModalOpen(false);
                 setCurrentAccount(null);
             }
         };
 
         csharpApi.addEventListener('message', handleMessage);
-        csharpApi.getAccounts();
-        csharpApi.getCategories();
+        csharpApi.getAccounts(); // Initial fetch
+        csharpApi.getCategories(); // Initial fetch for categories for the dropdown
 
         return () => {
             csharpApi.removeEventListener('message', handleMessage);
         };
-    }, []);
+    }, []); // Empty dependency array means it runs only once on mount
     
     const accountCategories = categories.filter(c => c.type === 'Account');
 

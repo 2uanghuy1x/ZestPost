@@ -14,20 +14,20 @@ function ArticleCrud() {
             if (message.action === 'articlesData') {
                 setArticles(message.payload);
             }
+            // Remove the csharpApi.getArticles() call from here
             if (message.action === 'actionSuccess') {
-                csharpApi.getArticles(); // Assumes this will be added to the API
                 setIsModalOpen(false);
                 setCurrentArticle(null);
             }
         };
 
         csharpApi.addEventListener('message', handleMessage);
-        csharpApi.getArticles(); // Assumes this will be added to the API
+        csharpApi.getArticles(); // Initial fetch
 
         return () => {
             csharpApi.removeEventListener('message', handleMessage);
         };
-    }, []);
+    }, []); // Empty dependency array means it runs only once on mount
 
     const handleAddNew = () => {
         setCurrentArticle({ title: '', content: '' });
@@ -41,16 +41,16 @@ function ArticleCrud() {
 
     const handleDelete = (article) => {
         if (window.confirm(`Are you sure you want to delete article "${article.title}"?`)) {
-            csharpApi.deleteArticle(article); // Assumes this will be added to the API
+            csharpApi.deleteArticle(article);
         }
     };
 
     const handleSave = (e) => {
         e.preventDefault();
         if (currentArticle.id) {
-            csharpApi.updateArticle(currentArticle); // Assumes this will be added
+            csharpApi.updateArticle(currentArticle);
         } else {
-            csharpApi.addArticle(currentArticle); // Assumes this will be added
+            csharpApi.addArticle(currentArticle);
         }
     };
 
