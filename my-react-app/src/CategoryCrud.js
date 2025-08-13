@@ -12,7 +12,7 @@ function CategoryCrud() {
             if (message.action === 'categoriesData') {
                 setCategories(message.payload);
             }
-            if (message.action === 'categoryActionSuccess') {
+            if (message.action === 'actionSuccess') {
                 csharpApi.getCategories();
                 setIsModalOpen(false);
                 setCurrentCategory(null);

@@ -84,7 +84,7 @@ namespace ZestPost
                             newCategory.Id = Guid.NewGuid();
                             if (_categoryController.InsertCategory(newCategory))
                             {
-                                SendDataToReact("categoryActionSuccess", null);
+                                SendDataToReact("actionSuccess", null);
                             }
                         }
                         break;
@@ -94,7 +94,7 @@ namespace ZestPost
                         {
                             if (_categoryController.UpdateCategory(updatedCategory))
                             {
-                                SendDataToReact("categoryActionSuccess", null);
+                                SendDataToReact("actionSuccess", null);
                             }
                         }
                         break;
@@ -104,7 +104,7 @@ namespace ZestPost
                         {
                             if (_categoryController.DeleteCategory(deleteCategory))
                             {
-                                SendDataToReact("categoryActionSuccess", null);
+                                SendDataToReact("actionSuccess", null);
                             }
                         }
                         break;
