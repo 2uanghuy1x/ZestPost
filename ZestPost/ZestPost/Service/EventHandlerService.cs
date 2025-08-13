@@ -14,7 +14,6 @@ namespace ZestPost.Service
         public EventHandlerService(ZestPostContext context, WebView2 webView)
         {
             var cachingService = new CachingService(); // Initialize CachingService here
-
             _accountController = new AccountController(context, cachingService);
             _categoryController = new CategoryController(context, cachingService);
             _articleController = new ArticleController(context, cachingService);
@@ -140,15 +139,16 @@ namespace ZestPost.Service
         private async Task SendDataToWebView(string action, object data)
         {
             var message = new { action, payload = data };
-            var jsonMessage = JsonConvert.SerializeObject(message, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
-            await _webView.ExecuteScriptAsync($"window.chrome.webview.postMessage({jsonMessage}, '*')");
+            string jsonResponse = JsonConvert.SerializeObject(message);
+            _webView.CoreWebView2.PostWebMessageAsJson(jsonResponse);
         }
 
         private async Task SendActionSuccess()
         {
             var message = new { action = "actionSuccess" };
             var jsonMessage = JsonConvert.SerializeObject(message);
-            await _webView.ExecuteScriptAsync($"window.chrome.webview.postMessage({jsonMessage}, '*')");
+            string jsonResponse = JsonConvert.SerializeObject(message);
+            _webView.CoreWebView2.PostWebMessageAsJson(jsonResponse);
         }
     }
 }

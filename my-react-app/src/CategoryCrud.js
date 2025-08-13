@@ -14,13 +14,12 @@ function CategoryCrud() {
             if (message.action === 'categoriesData') {
                 setCategories(message.payload);
             }
-            // Remove the csharpApi.getCategories() call from here
             if (message.action === 'actionSuccess') {
                 setIsModalOpen(false);
                 setCurrentCategory(null);
+                csharpApi.getCategories();
             }
         };
-
         csharpApi.addEventListener('message', handleMessage);
         csharpApi.getCategories(); // Initial fetch
 
@@ -76,10 +75,10 @@ function CategoryCrud() {
                             </tr>
                         </thead>
                         <tbody>
-                            {categories.map((category) => (
-                                <tr key={category.id}>
-                                    <td>{category.name}</td>
-                                    <td>{category.type}</td>
+                        {categories.map((category, index) => (
+                                <tr key={category.Id || `category-${index}`}>
+                                    <td>{category.Name}</td>
+                                    <td>{category.Type}</td>
                                     <td className="actions-column">
                                         <button className="action-btn edit" onClick={() => handleEdit(category)}>Sửa</button>
                                         <button className="action-btn delete" onClick={() => handleDelete(category)}>Xóa</button>
