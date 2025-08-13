@@ -2,21 +2,33 @@ using System.Collections.Generic;
 using System.Linq;
 using ZestPost.DbService;
 using ZestPost.DbService.Entity;
+using ZestPost.Service;
 
 namespace ZestPost.Controller
 {
     public class ArticleController
     {
         private readonly ZestPostContext _context;
+        private readonly CachingService _cache;
+        private const string CacheKey = "articles";
 
-        public ArticleController(ZestPostContext context)
+        public ArticleController(ZestPostContext context, CachingService cache)
         {
             _context = context;
+            _cache = cache;
         }
 
         public List<Article> GetAll()
         {
-            return _context.Articles.ToList();
+            var cachedArticles = _cache.Get<List<Article>>(CacheKey);
+            if (cachedArticles != null)
+            {
+                return cachedArticles;
+            }
+
+            var articles = _context.Articles.ToList();
+            _cache.Set(CacheKey, articles);
+            return articles;
         }
 
         public void Add(Article article)
@@ -25,6 +37,7 @@ namespace ZestPost.Controller
             {
                 _context.Articles.Add(article);
                 _context.SaveChanges();
+                _cache.Remove(CacheKey); // Invalidate cache
             }
         }
 
@@ -36,6 +49,7 @@ namespace ZestPost.Controller
                 existingArticle.Title = article.Title;
                 existingArticle.Content = article.Content;
                 _context.SaveChanges();
+                _cache.Remove(CacheKey); // Invalidate cache
             }
         }
 
@@ -46,6 +60,7 @@ namespace ZestPost.Controller
             {
                 _context.Articles.Remove(article);
                 _context.SaveChanges();
+                _cache.Remove(CacheKey); // Invalidate cache
             }
         }
     }

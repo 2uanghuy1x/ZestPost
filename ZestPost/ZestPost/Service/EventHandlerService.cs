@@ -5,6 +5,7 @@ using System.Windows;
 using ZestPost.Controller;
 using ZestPost.DbService;
 using ZestPost.DbService.Entity;
+using ZestPost.Service;
 
 namespace ZestPost.Service
 {
@@ -13,13 +14,17 @@ namespace ZestPost.Service
         private readonly AccountController _accountController;
         private readonly CategoryController _categoryController;
         private readonly ArticleController _articleController;
+        private readonly PostArticleController _postArticleController; // Add this
         private readonly WebView2 _webView;
 
         public EventHandlerService(ZestPostContext context, WebView2 webView)
         {
-            _accountController = new AccountController(context);
-            _categoryController = new CategoryController(context);
-            _articleController = new ArticleController(context);
+            var cachingService = new CachingService(); // Initialize CachingService here
+
+            _accountController = new AccountController(context, cachingService);
+            _categoryController = new CategoryController(context, cachingService);
+            _articleController = new ArticleController(context, cachingService);
+            _postArticleController = new PostArticleController(context, cachingService); // Initialize PostArticleController
             _webView = webView;
         }
 
@@ -54,9 +59,13 @@ namespace ZestPost.Service
                             await SendActionSuccess();
                             break;
                         case "deleteAccount":
-                            var accountToDelete = payload?.ToObject<AccountFB>();
-                            if(accountToDelete != null) _accountController.Delete(accountToDelete.Id);
-                            await SendActionSuccess();
+                            // Assuming payload.Id is available for deletion
+                            if (payload != null && payload["id"] != null)
+                            {
+                                var accountId = payload["id"].ToObject<int>();
+                                _accountController.Delete(accountId);
+                                await SendActionSuccess();
+                            }
                             break;
 
                         // Category Actions
@@ -75,9 +84,13 @@ namespace ZestPost.Service
                             await SendActionSuccess();
                             break;
                         case "deleteCategory":
-                             var categoryToDelete = payload?.ToObject<Category>();
-                            if(categoryToDelete != null) _categoryController.Delete(categoryToDelete.Id);
-                            await SendActionSuccess();
+                            // Assuming payload.Id is available for deletion
+                            if (payload != null && payload["id"] != null)
+                            {
+                                var categoryId = payload["id"].ToObject<int>();
+                                _categoryController.Delete(categoryId);
+                                await SendActionSuccess();
+                            }
                             break;
 
                         // Article Actions
@@ -96,8 +109,18 @@ namespace ZestPost.Service
                             await SendActionSuccess();
                             break;
                         case "deleteArticle":
-                            var articleToDelete = payload?.ToObject<Article>();
-                            if(articleToDelete != null) _articleController.Delete(articleToDelete.Id);
+                            // Assuming payload.Id is available for deletion
+                            if (payload != null && payload["id"] != null)
+                            {
+                                var articleId = payload["id"].ToObject<int>();
+                                _articleController.Delete(articleId);
+                                await SendActionSuccess();
+                            }
+                            break;
+
+                        // Post Article Action (Placeholder)
+                        case "postArticle":
+                            _postArticleController.ProcessArticlePost(payload);
                             await SendActionSuccess();
                             break;
 
