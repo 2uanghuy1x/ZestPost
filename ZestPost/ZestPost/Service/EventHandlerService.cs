@@ -51,20 +51,22 @@ namespace ZestPost.Service
                         case "addAccount":
                             var newAccount = payload?.ToObject<AccountFB>();
                             _accountController.Add(newAccount);
-                            await SendActionSuccess();
+                            await SendDataToWebView("accountsData", _accountController.GetAll()); // Re-send updated list
+                            // await SendActionSuccess(); // Not needed if data is re-sent
                             break;
                         case "updateAccount":
                             var updatedAccount = payload?.ToObject<AccountFB>();
                             _accountController.Update(updatedAccount);
-                            await SendActionSuccess();
+                            await SendDataToWebView("accountsData", _accountController.GetAll()); // Re-send updated list
+                            // await SendActionSuccess(); // Not needed if data is re-sent
                             break;
                         case "deleteAccount":
-                            // Assuming payload.Id is available for deletion
                             if (payload != null && payload["id"] != null)
                             {
                                 var accountId = payload["id"].ToObject<int>();
                                 _accountController.Delete(accountId);
-                                await SendActionSuccess();
+                                await SendDataToWebView("accountsData", _accountController.GetAll()); // Re-send updated list
+                                // await SendActionSuccess(); // Not needed if data is re-sent
                             }
                             break;
 
@@ -76,20 +78,22 @@ namespace ZestPost.Service
                         case "addCategory":
                             var newCategory = payload?.ToObject<Category>();
                             _categoryController.Add(newCategory);
-                            await SendActionSuccess();
+                            await SendDataToWebView("categoriesData", _categoryController.GetAll()); // Re-send updated list
+                            // await SendActionSuccess(); // Not needed if data is re-sent
                             break;
                         case "updateCategory":
                             var updatedCategory = payload?.ToObject<Category>();
                             _categoryController.Update(updatedCategory);
-                            await SendActionSuccess();
+                            await SendDataToWebView("categoriesData", _categoryController.GetAll()); // Re-send updated list
+                            // await SendActionSuccess(); // Not needed if data is re-sent
                             break;
                         case "deleteCategory":
-                            // Assuming payload.Id is available for deletion
                             if (payload != null && payload["id"] != null)
                             {
                                 var categoryId = payload["id"].ToObject<int>();
                                 _categoryController.Delete(categoryId);
-                                await SendActionSuccess();
+                                await SendDataToWebView("categoriesData", _categoryController.GetAll()); // Re-send updated list
+                                // await SendActionSuccess(); // Not needed if data is re-sent
                             }
                             break;
 
@@ -101,27 +105,29 @@ namespace ZestPost.Service
                         case "addArticle":
                             var newArticle = payload?.ToObject<Article>();
                             _articleController.Add(newArticle);
-                            await SendActionSuccess();
+                            await SendDataToWebView("articlesData", _articleController.GetAll()); // Re-send updated list
+                            // await SendActionSuccess(); // Not needed if data is re-sent
                             break;
                         case "updateArticle":
                             var updatedArticle = payload?.ToObject<Article>();
                             _articleController.Update(updatedArticle);
-                            await SendActionSuccess();
+                            await SendDataToWebView("articlesData", _articleController.GetAll()); // Re-send updated list
+                            // await SendActionSuccess(); // Not needed if data is re-sent
                             break;
                         case "deleteArticle":
-                            // Assuming payload.Id is available for deletion
                             if (payload != null && payload["id"] != null)
                             {
                                 var articleId = payload["id"].ToObject<int>();
                                 _articleController.Delete(articleId);
-                                await SendActionSuccess();
+                                await SendDataToWebView("articlesData", _articleController.GetAll()); // Re-send updated list
+                                // await SendActionSuccess(); // Not needed if data is re-sent
                             }
                             break;
 
                         // Post Article Action (Placeholder)
                         case "postArticle":
                             _postArticleController.ProcessArticlePost(payload);
-                            await SendActionSuccess();
+                            await SendActionSuccess(); // Send action success for this placeholder action
                             break;
 
                         default:
