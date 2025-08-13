@@ -1,13 +1,17 @@
-﻿namespace ZestPost.DbService
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace ZestPost.DbService
 {
     public class AccountFB
     {
+        [Key]
         public Guid Id { get; set; }
-        public Guid IdCategory { get; set; }
+        public Guid CategoryId { get; set; }
         public string? Privatekey { get; set; }
         public string? Token { get; set; }
         public string? Cookies { get; set; }
         public string? Uid { get; set; }
+        public string? Password { get; set; }
         public string? Email { get; set; }
         public string? Passmail { get; set; }
         public string? Phone { get; set; }

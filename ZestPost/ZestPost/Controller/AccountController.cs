@@ -1,7 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
-using ZestPost.DbService;
-using ZestPost.DbService.Entity;
 using ZestPost.Service;
 
 namespace ZestPost.Controller
@@ -47,7 +43,6 @@ namespace ZestPost.Controller
             if (existingAccount != null)
             {
                 existingAccount.Name = account.Name;
-                existingAccount.Username = account.Username;
                 if (!string.IsNullOrEmpty(account.Password)) // Only update password if provided
                 {
                     existingAccount.Password = account.Password;

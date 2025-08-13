@@ -1,7 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
-using ZestPost.DbService;
-using ZestPost.DbService.Entity;
 using ZestPost.Service;
 
 namespace ZestPost.Controller

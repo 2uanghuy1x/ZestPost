@@ -32,6 +32,7 @@ namespace ZestPost.DbService
                 // Configure the database to be used (e.g., SQLite)
                 // Assumes a database file named "zestpost.db" in the application's root directory.
                 optionsBuilder.UseSqlite($"Data Source={dbPath}");
+
             }
         }
 

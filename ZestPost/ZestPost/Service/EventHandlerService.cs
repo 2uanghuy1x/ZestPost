@@ -1,11 +1,5 @@
-using Microsoft.Web.WebView2.WinForms;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System.Windows;
+using Microsoft.Web.WebView2.Wpf;
 using ZestPost.Controller;
-using ZestPost.DbService;
-using ZestPost.DbService.Entity;
-using ZestPost.Service;
 
 namespace ZestPost.Service
 {
