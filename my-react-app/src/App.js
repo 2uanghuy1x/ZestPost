@@ -1,39 +1,45 @@
 
-import React from 'react';
-import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
+import React, { useState } from 'react';
 import AccountCrud from './AccountCrud';
 import CategoryCrud from './CategoryCrud';
-import PostArticle from './PostArticle'; // Import the new component
+import ArticleCrud from './ArticleCrud'; // Import the new ArticleCrud
+import PostArticle from './PostArticle';
+import Sidebar from './Sidebar';
 import './App.css';
 
 function App() {
-  return (
-    <Router>
-      <div>
-        <nav>
-          <ul>
-            <li>
-              <Link to="/accounts">Quản lý tài khoản</Link>
-            </li>
-            <li>
-              <Link to="/categories">Quản lý danh mục</Link>
-            </li>
-            <li>
-              <Link to="/post-article">Đăng bài viết</Link> 
-            </li>
-          </ul>
-        </nav>
+    const [currentView, setCurrentView] = useState('accounts'); // Default view
 
-        <hr />
+    const handleNavigation = (view) => {
+        setCurrentView(view);
+    };
 
-        <Routes>
-          <Route path="/accounts" element={<AccountCrud />} />
-          <Route path="/categories" element={<CategoryCrud />} />
-          <Route path="/post-article" element={<PostArticle />} /> 
-        </Routes>
-      </div>
-    </Router>
-  );
+    let content;
+    switch (currentView) {
+        case 'accounts':
+            content = <AccountCrud />;
+            break;
+        case 'categories':
+            content = <CategoryCrud />;
+            break;
+        case 'articles': // Add the new case
+            content = <ArticleCrud />;
+            break;
+        case 'post-article':
+            content = <PostArticle />;
+            break;
+        default:
+            content = <AccountCrud />;
+    }
+
+    return (
+        <div className="app-container">
+            <Sidebar onNavigate={handleNavigation} currentView={currentView} />
+            <div className="main-app-content">
+                {content}
+            </div>
+        </div>
+    );
 }
 
 export default App;

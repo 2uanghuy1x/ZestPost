@@ -1,84 +1,124 @@
 
 import React, { useState, useEffect } from 'react';
-import api from './api'; // Assuming you have an api.js file to handle communication with C#
+import { csharpApi } from './api';
+import './PostArticle.css'; // Using the revamped CSS
 
 const PostArticle = () => {
-    const [categories, setCategories] = useState([]);
+    const [allCategories, setAllCategories] = useState([]);
+    const [allAccounts, setAllAccounts] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState('');
-    const [accounts, setAccounts] = useState([]);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [generalConfig, setGeneralConfig] = useState({});
+    const [contentConfig, setContentConfig] = useState({});
 
     useEffect(() => {
-        // Fetch categories of type 'account' when the component mounts
-        const fetchCategories = async () => {
-            try {
-                const response = await api.get('/categories?type=account'); // You'll need to implement this on the C# side
-                setCategories(response.data);
-            } catch (error) {
-                console.error("Error fetching categories:", error);
+        const handleMessage = (event) => {
+            const message = event.data;
+            if (message.action === 'categoriesData') {
+                setAllCategories(message.payload);
+            }
+            if (message.action === 'accountsData') {
+                setAllAccounts(message.payload);
             }
         };
-        fetchCategories();
+
+        csharpApi.addEventListener('message', handleMessage);
+        csharpApi.getCategories();
+        csharpApi.getAccounts();
+
+        return () => {
+            csharpApi.removeEventListener('message', handleMessage);
+        };
     }, []);
 
-    useEffect(() => {
-        // Fetch accounts when a category is selected
-        if (selectedCategory) {
-            const fetchAccounts = async () => {
-                try {
-                    const response = await api.get(`/categories/${selectedCategory}/accounts`); // You'll need to implement this on the C# side
-                    setAccounts(response.data);
-                } catch (error) {
-                    console.error("Error fetching accounts:", error);
-                }
-            };
-            fetchAccounts();
-        } else {
-            setAccounts([]);
-        }
-    }, [selectedCategory]);
+    const accountCategories = allCategories.filter(c => c.type === 'Account');
+
+    const filteredAccounts = allAccounts
+        .filter(a => !selectedCategory || a.categoryId === parseInt(selectedCategory))
+        .filter(a => a.name.toLowerCase().includes(searchTerm.toLowerCase()));
+
+    const handleGeneralConfigChange = (e) => {
+        setGeneralConfig({ ...generalConfig, [e.target.name]: e.target.value });
+    };
+
+    const handleContentConfigChange = (e) => {
+        setContentConfig({ ...contentConfig, [e.target.name]: e.target.value });
+    };
 
     return (
-        <div>
-            <h2>Đăng bài viết</h2>
-            <div>
-                <label htmlFor="category-select">Chọn danh mục:</label>
-                <select 
-                    id="category-select" 
-                    value={selectedCategory} 
-                    onChange={(e) => setSelectedCategory(e.target.value)}
-                >
-                    <option value="">--Chọn một danh mục--</option>
-                    {categories.map(category => (
-                        <option key={category.id} value={category.id}>
-                            {category.name}
-                        </option>
-                    ))}
-                </select>
+        <div className="post-article-container">
+            <div className="main-content">
+                <div className="card">
+                    <div className="card-header">
+                        <h3>Danh sách tài khoản</h3>
+                    </div>
+                    <div className="account-selection-header">
+                        <select 
+                            value={selectedCategory} 
+                            onChange={(e) => setSelectedCategory(e.target.value)}
+                        >
+                            <option value="">--Tất cả danh mục tài khoản--</option>
+                            {accountCategories.map(category => (
+                                <option key={category.id} value={category.id}>
+                                    {category.name}
+                                </option>
+                            ))}
+                        </select>
+                        <input
+                            type="text"
+                            placeholder="Tìm kiếm tài khoản..."
+                            className="account-search"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </div>
+                    
+                    <div className="account-table-container">
+                        <table className="accounts-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Tên</th>
+                                    <th>Username</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {filteredAccounts.map(account => (
+                                    <tr key={account.id}>
+                                        <td>{account.id}</td>
+                                        <td>{account.name}</td>
+                                        <td>{account.username}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
 
-            {selectedCategory && (
-                <div>
-                    <h3>Tài khoản trong danh mục</h3>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Tên</th>
-                                {/* Add other account properties you want to display */}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {accounts.map(account => (
-                                <tr key={account.id}>
-                                    <td>{account.id}</td>
-                                    <td>{account.name}</td>
-                                    {/* Render other account properties */}
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+            <div className="sidebar-content">
+                <div className="card">
+                    <div className="card-header">
+                        <h3>Cấu hình chung</h3>
+                    </div>
+                    <form className="config-form">
+                        <label htmlFor="setting1">Tên chiến dịch:</label>
+                        <input id="setting1" name="campaignName" onChange={handleGeneralConfigChange} />
+                        
+                        <label htmlFor="setting2">Độ trễ giữa các bài đăng (giây):</label>
+                        <input id="setting2" name="postDelay" type="number" onChange={handleGeneralConfigChange} />
+                    </form>
                 </div>
-            )}
+                <div className="card">
+                    <div className="card-header">
+                        <h3>Cấu hình nội dung</h3>
+                    </div>
+                    <form className="config-form">
+                        <label htmlFor="content">Nội dung bài viết:</label>
+                        <textarea id="content" name="content" rows="8" onChange={handleContentConfigChange}></textarea>
+                    </form>
+                </div>
+            </div>
         </div>
     );
 };

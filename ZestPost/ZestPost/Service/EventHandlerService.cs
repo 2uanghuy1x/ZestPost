@@ -1,98 +1,131 @@
-﻿using OpenQA.Selenium.Chrome;
-using ZestPost.Base.Chrome;
+using Microsoft.Web.WebView2.WinForms;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.Windows;
+using ZestPost.Controller;
+using ZestPost.DbService;
+using ZestPost.DbService.Entity;
 
 namespace ZestPost.Service
 {
     public class EventHandlerService
     {
-        public void HandleEvent(EventData eventData)
+        private readonly AccountController _accountController;
+        private readonly CategoryController _categoryController;
+        private readonly ArticleController _articleController;
+        private readonly WebView2 _webView;
+
+        public EventHandlerService(ZestPostContext context, WebView2 webView)
         {
-            switch (eventData.Screen)
-            {
-                case "accounts":
-                    HandleAccountsScreen(eventData.Data);
-                    break;
-                case "details":
-                    HandleDetailsScreen(eventData.Data);
-                    break;
-                case "settings":
-                    HandleSettingsScreen(eventData.Data);
-                    break;
-                default:
-                    MessageBox.Show($"Màn hình không xác định: {eventData.Screen}");
-                    break;
-            }
+            _accountController = new AccountController(context);
+            _categoryController = new CategoryController(context);
+            _articleController = new ArticleController(context);
+            _webView = webView;
         }
 
-        private void HandleAccountsScreen(List<Account> data)
+        public void HandleMessage(string message)
         {
-            try
+            var json = JObject.Parse(message);
+            var action = json["action"]?.ToString();
+            var payload = json["payload"];
+
+            if (string.IsNullOrEmpty(action)) return;
+
+            // Use Application.Current.Dispatcher to ensure UI updates are on the main thread
+            Application.Current.Dispatcher.Invoke(async () =>
             {
-                testchrome testchrome = new testchrome(new ChromeDriver());
-                testchrome.OpenChrome("aa");
-                //MessageBox.Show($"Tài khoản được chọn: {string.Join(", ", selectedAccounts)}");
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Lỗi xử lý tài khoản: {ex.Message}");
-            }
+                try
+                {
+                    switch (action)
+                    {
+                        // Account Actions
+                        case "getAccounts":
+                            var accounts = _accountController.GetAll();
+                            await SendDataToWebView("accountsData", accounts);
+                            break;
+                        case "addAccount":
+                            var newAccount = payload?.ToObject<AccountFB>();
+                            _accountController.Add(newAccount);
+                            await SendActionSuccess();
+                            break;
+                        case "updateAccount":
+                            var updatedAccount = payload?.ToObject<AccountFB>();
+                            _accountController.Update(updatedAccount);
+                            await SendActionSuccess();
+                            break;
+                        case "deleteAccount":
+                            var accountToDelete = payload?.ToObject<AccountFB>();
+                            if(accountToDelete != null) _accountController.Delete(accountToDelete.Id);
+                            await SendActionSuccess();
+                            break;
+
+                        // Category Actions
+                        case "getCategories":
+                            var categories = _categoryController.GetAll();
+                            await SendDataToWebView("categoriesData", categories);
+                            break;
+                        case "addCategory":
+                            var newCategory = payload?.ToObject<Category>();
+                            _categoryController.Add(newCategory);
+                            await SendActionSuccess();
+                            break;
+                        case "updateCategory":
+                            var updatedCategory = payload?.ToObject<Category>();
+                            _categoryController.Update(updatedCategory);
+                            await SendActionSuccess();
+                            break;
+                        case "deleteCategory":
+                             var categoryToDelete = payload?.ToObject<Category>();
+                            if(categoryToDelete != null) _categoryController.Delete(categoryToDelete.Id);
+                            await SendActionSuccess();
+                            break;
+
+                        // Article Actions
+                        case "getArticles":
+                            var articles = _articleController.GetAll();
+                            await SendDataToWebView("articlesData", articles);
+                            break;
+                        case "addArticle":
+                            var newArticle = payload?.ToObject<Article>();
+                            _articleController.Add(newArticle);
+                            await SendActionSuccess();
+                            break;
+                        case "updateArticle":
+                            var updatedArticle = payload?.ToObject<Article>();
+                            _articleController.Update(updatedArticle);
+                            await SendActionSuccess();
+                            break;
+                        case "deleteArticle":
+                            var articleToDelete = payload?.ToObject<Article>();
+                            if(articleToDelete != null) _articleController.Delete(articleToDelete.Id);
+                            await SendActionSuccess();
+                            break;
+
+                        default:
+                            // Optionally handle unknown actions
+                            break;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Handle exceptions, maybe log them or show a message
+                    MessageBox.Show($"An error occurred: {ex.Message}");
+                }
+            });
         }
 
-        private void HandleDetailsScreen(object data)
+        private async Task SendDataToWebView(string action, object data)
         {
-            try
-            {
-                var details = JsonConvert.DeserializeObject<DetailData>(data.ToString());
-                MessageBox.Show($"Chi tiết tài khoản: ID = {details.AccountId}, Tên = {details.AccountName}");
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Lỗi xử lý chi tiết: {ex.Message}");
-            }
+            var message = new { action, payload = data };
+            var jsonMessage = JsonConvert.SerializeObject(message, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
+            await _webView.ExecuteScriptAsync($"window.chrome.webview.postMessage({jsonMessage}, '*')");
         }
 
-        private void HandleSettingsScreen(object data)
+        private async Task SendActionSuccess()
         {
-            try
-            {
-                var settings = JsonConvert.DeserializeObject<SettingsData>(data.ToString());
-                MessageBox.Show($"Cài đặt: Theme = {settings.Theme}, Notifications = {settings.Notifications}");
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Lỗi xử lý cài đặt: {ex.Message}");
-            }
+            var message = new { action = "actionSuccess" };
+            var jsonMessage = JsonConvert.SerializeObject(message);
+            await _webView.ExecuteScriptAsync($"window.chrome.webview.postMessage({jsonMessage}, '*')");
         }
-    }
-
-    // Định nghĩa lớp dữ liệu
-    public class EventData
-    {
-        [JsonProperty("screen")]
-        public string Screen { get; set; }
-
-        [JsonProperty("data")]
-        public List<Account> Data { get; set; }
-    }
-
-    public class Account
-    {
-        [JsonProperty("id")]
-        public int Id { get; set; }
-
-        [JsonProperty("name")]
-        public string Name { get; set; }
-    }
-
-    public class DetailData
-    {
-        public string AccountId { get; set; }
-        public string AccountName { get; set; }
-    }
-
-    public class SettingsData
-    {
-        public string Theme { get; set; }
-        public bool Notifications { get; set; }
     }
 }

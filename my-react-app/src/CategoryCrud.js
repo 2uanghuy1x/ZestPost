@@ -1,5 +1,7 @@
+
 import React, { useState, useEffect } from 'react';
 import { csharpApi } from './api';
+import './CategoryCrud.css'; // We will create this CSS file next
 
 function CategoryCrud() {
     const [categories, setCategories] = useState([]);
@@ -58,37 +60,44 @@ function CategoryCrud() {
     };
 
     return (
-        <div className="content-container">
-            <div className="content-header">
-                <h1>Quản lý Danh mục</h1>
-                <button className="add-new-btn" onClick={handleAddNew}>+ Thêm mới</button>
+        <div className="crud-container">
+            <div className="card">
+                <div className="card-header">
+                    <h3>Quản lý Danh mục</h3>
+                    <button className="add-new-btn" onClick={handleAddNew}>+ Thêm mới</button>
+                </div>
+                <div className="table-container">
+                    <table className="crud-table">
+                        <thead>
+                            <tr>
+                                <th>Tên danh mục</th>
+                                <th>Loại</th>
+                                <th className="actions-column">Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {categories.map((category) => (
+                                <tr key={category.id}>
+                                    <td>{category.name}</td>
+                                    <td>{category.type}</td>
+                                    <td className="actions-column">
+                                        <button className="action-btn edit" onClick={() => handleEdit(category)}>Sửa</button>
+                                        <button className="action-btn delete" onClick={() => handleDelete(category)}>Xóa</button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Tên danh mục</th>
-                        <th>Loại</th>
-                        <th className="actions-column">Hành động</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {categories.map((category) => (
-                        <tr key={category.id}>
-                            <td>{category.name}</td>
-                            <td>{category.type}</td>
-                            <td>
-                                <button className="action-btn edit" onClick={() => handleEdit(category)}>Sửa</button>
-                                <button className="action-btn delete" onClick={() => handleDelete(category)}>Xóa</button>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
 
             {isModalOpen && (
                 <div className="modal">
                     <div className="modal-content">
-                        <h2>{currentCategory && currentCategory.id ? 'Sửa danh mục' : 'Thêm danh mục'}</h2>
+                        <div className="modal-header">
+                            <h2>{currentCategory && currentCategory.id ? 'Sửa danh mục' : 'Thêm danh mục'}</h2>
+                            <button className="close-btn" onClick={() => setIsModalOpen(false)}>&times;</button>
+                        </div>
                         <form onSubmit={handleSave}>
                             <label>Tên danh mục:</label>
                             <input name="name" value={currentCategory ? currentCategory.name : ''} onChange={handleInputChange} required />

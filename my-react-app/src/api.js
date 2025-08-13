@@ -20,6 +20,12 @@ export const csharpApi = {
     addCategory: (category) => post({ action: 'addCategory', payload: category }),
     updateCategory: (category) => post({ action: 'updateCategory', payload: category }),
     deleteCategory: (category) => post({ action: 'deleteCategory', payload: category }),
+
+    // Article Actions
+    getArticles: () => post({ action: 'getArticles' }),
+    addArticle: (article) => post({ action: 'addArticle', payload: article }),
+    updateArticle: (article) => post({ action: 'updateArticle', payload: article }),
+    deleteArticle: (article) => post({ action: 'deleteArticle', payload: article }),
     
     // Event Listener Wrappers
     addEventListener: (event, handler) => {

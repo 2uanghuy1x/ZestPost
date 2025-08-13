@@ -1,0 +1,113 @@
+/* Main container for the entire page */
+.post-article-container {
+    display: flex;
+    flex-direction: row;
+    padding: 20px;
+    gap: 20px;
+    background-color: #f0f2f5; /* A light grey background for contrast */
+}
+
+/* Main content area (left/center) */
+.main-content {
+    flex: 3;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Sidebar for configurations (right) */
+.sidebar-content {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Card style for grouping content */
+.card {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-header {
+    margin: -20px -20px 20px -20px;
+    padding: 15px 20px;
+    border-bottom: 1px solid #e0e0e0;
+    background-color: #f7f7f7;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+.card-header h3 {
+    margin: 0;
+    font-size: 1.1em;
+    color: #333;
+}
+
+
+/* Styling for filter/search controls */
+.account-selection-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.account-search {
+    width: 50%;
+}
+
+
+/* Table styling */
+.account-table-container {
+    overflow-x: auto;
+}
+
+.accounts-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.accounts-table th, .accounts-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.accounts-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+}
+
+.accounts-table tbody tr:hover {
+    background-color: #f1f1f1;
+}
+
+
+/* Configuration sections styling */
+.config-form label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #555;
+}
+
+.config-form input,
+.config-form textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    box-sizing: border-box; /* Important for width calculation */
+}
+
+.config-form textarea {
+    resize: vertical;
+    min-height: 100px;
+}

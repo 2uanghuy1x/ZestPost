@@ -1,0 +1,17 @@
+
+/* Most styles are shared from CategoryCrud.css, we just need to import them.
+   The bundler (like Create React App) will handle this.
+   If not using a bundler, you would copy the contents of CategoryCrud.css here. */
+@import './CategoryCrud.css';
+
+/* Specific adjustments for AccountCrud if needed */
+.modal-content form select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+    background-color: white; /* Ensure select is styled like input */
+}
+

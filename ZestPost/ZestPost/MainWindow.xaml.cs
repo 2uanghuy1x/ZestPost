@@ -1,127 +1,69 @@
-using ZestPost.Controller;
+using Microsoft.Web.WebView2.Core;
+using System;
+using System.IO;
+using System.Windows;
+using ZestPost.DbService;
+using ZestPost.Service;
 
 namespace ZestPost
 {
     public partial class MainWindow : Window
     {
-        private readonly AccountController _accountController;
-        private readonly CategoryController _categoryController;
+        private EventHandlerService _eventHandlerService;
+        private readonly ZestPostContext _dbContext;
 
         public MainWindow()
         {
             InitializeComponent();
-            _accountController = AccountController.Instance();
-            _categoryController = CategoryController.Instance();
+            
+            // Initialize DbContext
+            _dbContext = new ZestPostContext();
+            
+            // Apply migrations at startup
+            //_dbContext.Database.Migrate();
+
             InitializeWebView();
         }
 
         private async void InitializeWebView()
         {
-            await WebView.EnsureCoreWebView2Async(null);
-            // Thiết lập đường dẫn đến ứng dụng React của bạn
-            // Đảm bảo ứng dụng React đang chạy trên port 3000
-            WebView.CoreWebView2.Navigate("http://localhost:3000");
-            WebView.CoreWebView2.WebMessageReceived += CoreWebView2_WebMessageReceived;
-        }
-
-        private async void CoreWebView2_WebMessageReceived(object sender, Microsoft.Web.WebView2.Core.CoreWebView2WebMessageReceivedEventArgs args)
-        {
             try
             {
-                string jsonMessage = args.WebMessageAsJson.ToString();
-                var message = JObject.Parse(jsonMessage);
-                string action = message["action"]?.ToString();
-                JToken payload = message["payload"];
+                // Ensure the cache folder exists
+                string cacheFolderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "WebView2Cache");
+                Directory.CreateDirectory(cacheFolderPath);
+                var webView2Environment = await CoreWebView2Environment.CreateAsync(null, cacheFolderPath);
 
-                switch (action)
-                {
-                    // Account Actions
-                    case "getAccounts":
-                        var accounts = _accountController.GetListAccount();
-                        SendDataToReact("accountsData", accounts);
-                        break;
-                    case "addAccount":
-                        var newAccount = payload?.ToObject<AccountFB>();
-                        if (newAccount != null)
-                        {
-                            newAccount.Id = Guid.NewGuid();
-                            if (_accountController.InsertAccount(newAccount))
-                            {
-                                SendDataToReact("actionSuccess", null);
-                            }
-                        }
-                        break;
-                    case "updateAccount":
-                        var updatedAccount = payload?.ToObject<AccountFB>();
-                        if (updatedAccount != null)
-                        {
-                            if (await _accountController.UpdateAccountAsync(updatedAccount))
-                            {
-                                SendDataToReact("actionSuccess", null);
-                            }
-                        }
-                        break;
-                    case "deleteAccount":
-                        var deleteAccount = payload?.ToObject<AccountFB>();
-                        if (deleteAccount != null)
-                        {
-                            if (_accountController.DeleteAccount(deleteAccount))
-                            {
-                                SendDataToReact("actionSuccess", null);
-                            }
-                        }
-                        break;
 
-                    // Category Actions
-                    case "getCategories":
-                        var categories = _categoryController.GetAllCategory();
-                        SendDataToReact("categoriesData", categories);
-                        break;
-                    case "addCategory":
-                        var newCategory = payload?.ToObject<Category>();
-                        if (newCategory != null)
-                        {
-                            newCategory.Id = Guid.NewGuid();
-                            if (_categoryController.InsertCategory(newCategory))
-                            {
-                                SendDataToReact("actionSuccess", null);
-                            }
-                        }
-                        break;
-                    case "updateCategory":
-                        var updatedCategory = payload?.ToObject<Category>();
-                        if (updatedCategory != null)
-                        {
-                            if (_categoryController.UpdateCategory(updatedCategory))
-                            {
-                                SendDataToReact("actionSuccess", null);
-                            }
-                        }
-                        break;
-                    case "deleteCategory":
-                        var deleteCategory = payload?.ToObject<Category>();
-                        if (deleteCategory != null)
-                        {
-                            if (_categoryController.DeleteCategory(deleteCategory))
-                            {
-                                SendDataToReact("actionSuccess", null);
-                            }
-                        }
-                        break;
-                }
+                await WebView.EnsureCoreWebView2Async(webView2Environment);
+
+                // Initialize the event handler service after WebView2 is ready
+                _eventHandlerService = new EventHandlerService(_dbContext, WebView);
+
+                WebView.CoreWebView2.WebMessageReceived += CoreWebView2_WebMessageReceived;
+                
+                // Allow debugging in development
+                #if DEBUG
+                    WebView.CoreWebView2.OpenDevToolsWindow();
+                #endif
+
+                // Navigate to the React app
+                WebView.CoreWebView2.Navigate("http://localhost:3000");
+
             }
             catch (Exception ex)
             {
-                // Gửi lỗi về React để debug nếu cần
-                SendDataToReact("error", ex.Message);
+                MessageBox.Show($"Could not initialize WebView2: {ex.Message}", "Initialization Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        private void SendDataToReact(string action, object payload)
+        private void CoreWebView2_WebMessageReceived(object sender, CoreWebView2WebMessageReceivedEventArgs args)
         {
-            var data = new { action, payload };
-            string jsonResponse = JsonConvert.SerializeObject(data);
-            WebView.CoreWebView2.PostWebMessageAsJson(jsonResponse);
+            string jsonMessage = args.TryGetWebMessageAsString();
+            if (!string.IsNullOrEmpty(jsonMessage))
+            {
+                _eventHandlerService.HandleMessage(jsonMessage);
+            }
         }
     }
 }

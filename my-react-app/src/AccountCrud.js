@@ -1,8 +1,11 @@
+
 import React, { useState, useEffect } from 'react';
 import { csharpApi } from './api';
+import './AccountCrud.css'; // We will create this CSS file next
 
 function AccountCrud() {
     const [accounts, setAccounts] = useState([]);
+    const [categories, setCategories] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentAccount, setCurrentAccount] = useState(null);
 
@@ -12,26 +15,29 @@ function AccountCrud() {
             if (message.action === 'accountsData') {
                 setAccounts(message.payload);
             }
-            if (message.action === 'accountActionSuccess') {
+            if (message.action === 'categoriesData') {
+                setCategories(message.payload);
+            }
+            if (message.action === 'actionSuccess') {
                 csharpApi.getAccounts();
                 setIsModalOpen(false);
                 setCurrentAccount(null);
-            }
-            if (message.action === 'error') {
-                alert('An error occurred in C#: ' + message.payload);
             }
         };
 
         csharpApi.addEventListener('message', handleMessage);
         csharpApi.getAccounts();
+        csharpApi.getCategories();
 
         return () => {
             csharpApi.removeEventListener('message', handleMessage);
         };
     }, []);
+    
+    const accountCategories = categories.filter(c => c.type === 'Account');
 
     const handleAddNew = () => {
-        setCurrentAccount({ uid: '', name: '', email: '', passmail: '', status: 'Live', note: '' });
+        setCurrentAccount({ name: '', username: '', password: '', categoryId: '' });
         setIsModalOpen(true);
     };
 
@@ -41,17 +47,21 @@ function AccountCrud() {
     };
 
     const handleDelete = (account) => {
-        if (window.confirm(`Are you sure you want to delete account ${account.name} (${account.uid})?`)) {
+        if (window.confirm(`Are you sure you want to delete account ${account.name}?`)) {
             csharpApi.deleteAccount(account);
         }
     };
 
     const handleSave = (e) => {
         e.preventDefault();
-        if (currentAccount.id) {
-            csharpApi.updateAccount(currentAccount);
+        const accountToSave = {
+            ...currentAccount,
+            categoryId: parseInt(currentAccount.categoryId, 10) || null
+        };
+        if (accountToSave.id) {
+            csharpApi.updateAccount(accountToSave);
         } else {
-            csharpApi.addAccount(currentAccount);
+            csharpApi.addAccount(accountToSave);
         }
     };
 
@@ -60,63 +70,70 @@ function AccountCrud() {
         setCurrentAccount({ ...currentAccount, [name]: value });
     };
 
+    const getCategoryName = (categoryId) => {
+        const category = categories.find(c => c.id === categoryId);
+        return category ? category.name : 'N/A';
+    };
+
     return (
-        <div className="content-container">
-            <div className="content-header">
-                <h1>Quản lý Tài khoản</h1>
-                <button className="add-new-btn" onClick={handleAddNew}>+ Thêm mới</button>
+        <div className="crud-container">
+            <div className="card">
+                <div className="card-header">
+                    <h3>Quản lý Tài khoản</h3>
+                    <button className="add-new-btn" onClick={handleAddNew}>+ Thêm mới</button>
+                </div>
+                <div className="table-container">
+                    <table className="crud-table">
+                        <thead>
+                            <tr>
+                                <th>Tên</th>
+                                <th>Username</th>
+                                <th>Danh mục</th>
+                                <th className="actions-column">Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {accounts.map((account) => (
+                                <tr key={account.id}>
+                                    <td>{account.name}</td>
+                                    <td>{account.username}</td>
+                                    <td>{getCategoryName(account.categoryId)}</td>
+                                    <td className="actions-column">
+                                        <button className="action-btn edit" onClick={() => handleEdit(account)}>Sửa</button>
+                                        <button className="action-btn delete" onClick={() => handleDelete(account)}>Xóa</button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>UID</th>
-                        <th>Tên</th>
-                        <th>Email</th>
-                        <th>Trạng thái</th>
-                        <th>Ghi chú</th>
-                        <th className="actions-column">Hành động</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {accounts.map((account) => (
-                        <tr key={account.id}>
-                            <td>{account.uid}</td>
-                            <td>{account.name}</td>
-                            <td>{account.email}</td>
-                            <td>{account.status}</td>
-                            <td>{account.note}</td>
-                            <td>
-                                <button className="action-btn edit" onClick={() => handleEdit(account)}>Sửa</button>
-                                <button className="action-btn delete" onClick={() => handleDelete(account)}>Xóa</button>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
 
             {isModalOpen && (
                 <div className="modal">
                     <div className="modal-content">
-                        <h2>{currentAccount && currentAccount.id ? 'Sửa tài khoản' : 'Thêm tài khoản'}</h2>
+                        <div className="modal-header">
+                            <h2>{currentAccount && currentAccount.id ? 'Sửa tài khoản' : 'Thêm tài khoản'}</h2>
+                            <button className="close-btn" onClick={() => setIsModalOpen(false)}>&times;</button>
+                        </div>
                         <form onSubmit={handleSave}>
-                            <label>UID:</label>
-                            <input name="uid" value={currentAccount ? currentAccount.uid : ''} onChange={handleInputChange} required />
-                            
                             <label>Tên:</label>
-                            <input name="name" value={currentAccount ? currentAccount.name : ''} onChange={handleInputChange} />
-
-                            <label>Email:</label>
-                            <input type="email" name="email" value={currentAccount ? currentAccount.email : ''} onChange={handleInputChange} />
+                            <input name="name" value={currentAccount?.name || ''} onChange={handleInputChange} required />
                             
-                            <label>Password Mail:</label>
-                            <input name="passmail" value={currentAccount ? currentAccount.passmail : ''} onChange={handleInputChange} />
+                            <label>Username:</label>
+                            <input name="username" value={currentAccount?.username || ''} onChange={handleInputChange} required/>
 
-                            <label>Trạng thái:</label>
-                            <input name="status" value={currentAccount ? currentAccount.status : ''} onChange={handleInputChange} />
-
-                            <label>Ghi chú:</label>
-                            <textarea name="note" value={currentAccount ? currentAccount.note : ''} onChange={handleInputChange}></textarea>
+                            <label>Password:</label>
+                            <input name="password" type="password" value={currentAccount?.password || ''} onChange={handleInputChange} />
                             
+                            <label>Danh mục:</label>
+                            <select name="categoryId" value={currentAccount?.categoryId || ''} onChange={handleInputChange}>
+                                <option value="">-- Chọn danh mục --</option>
+                                {accountCategories.map(cat => (
+                                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                                ))}
+                            </select>
+
                             <div className="form-actions">
                                 <button type="submit" className="action-btn save">Lưu</button>
                                 <button type="button" className="action-btn cancel" onClick={() => setIsModalOpen(false)}>Hủy</button>
