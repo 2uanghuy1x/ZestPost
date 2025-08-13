@@ -1,7 +1,7 @@
 using System;
 using System.Windows;
 using ZestPost.Controller;
-using ZestPost.DbService;
+using ZestPost.DbService.Entity;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Threading.Tasks;
@@ -11,11 +11,13 @@ namespace ZestPost
     public partial class MainWindow : Window
     {
         private readonly AccountController _accountController;
+        private readonly CategoryController _categoryController;
 
         public MainWindow()
         {
             InitializeComponent();
             _accountController = AccountController.Instance();
+            _categoryController = CategoryController.Instance();
             InitializeWebView();
         }
 
@@ -39,11 +41,11 @@ namespace ZestPost
 
                 switch (action)
                 {
+                    // Account Actions
                     case "getAccounts":
                         var accounts = _accountController.GetListAccount();
                         SendDataToReact("accountsData", accounts);
                         break;
-
                     case "addAccount":
                         var newAccount = payload?.ToObject<AccountFB>();
                         if (newAccount != null)
@@ -55,7 +57,6 @@ namespace ZestPost
                             }
                         }
                         break;
-
                     case "updateAccount":
                         var updatedAccount = payload?.ToObject<AccountFB>();
                         if (updatedAccount != null)
@@ -66,7 +67,6 @@ namespace ZestPost
                             }
                         }
                         break;
-
                     case "deleteAccount":
                         var deleteAccount = payload?.ToObject<AccountFB>();
                         if (deleteAccount != null)
@@ -74,6 +74,43 @@ namespace ZestPost
                             if (_accountController.DeleteAccount(deleteAccount))
                             {
                                 SendDataToReact("actionSuccess", null);
+                            }
+                        }
+                        break;
+                    
+                    // Category Actions
+                    case "getCategories":
+                        var categories = _categoryController.GetAllCategory();
+                        SendDataToReact("categoriesData", categories);
+                        break;
+                    case "addCategory":
+                        var newCategory = payload?.ToObject<Category>();
+                        if (newCategory != null)
+                        {
+                            newCategory.Id = Guid.NewGuid();
+                            if (_categoryController.InsertCategory(newCategory))
+                            {
+                                SendDataToReact("categoryActionSuccess", null);
+                            }
+                        }
+                        break;
+                    case "updateCategory":
+                        var updatedCategory = payload?.ToObject<Category>();
+                        if (updatedCategory != null)
+                        {
+                            if (_categoryController.UpdateCategory(updatedCategory))
+                            {
+                                SendDataToReact("categoryActionSuccess", null);
+                            }
+                        }
+                        break;
+                    case "deleteCategory":
+                        var deleteCategory = payload?.ToObject<Category>();
+                        if (deleteCategory != null)
+                        {
+                            if (_categoryController.DeleteCategory(deleteCategory))
+                            {
+                                SendDataToReact("categoryActionSuccess", null);
                             }
                         }
                         break;
