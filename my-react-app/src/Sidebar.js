@@ -37,6 +37,33 @@ const Sidebar = ({ onNavigate, currentView }) => {
                         <span className="nav-text">Nội dung bài viết</span>
                     </a>
                 </li>
+                <li className="nav-item">
+                    <a 
+                        href="#" 
+                        className={`nav-link ${currentView === 'history' ? 'active' : ''}`}
+                        onClick={() => onNavigate('history')}
+                    >
+                        <span className="nav-text">Lịch sử tài khoản</span>
+                    </a>
+                </li>
+                <li className="nav-item">
+                    <a 
+                        href="#" 
+                        className={`nav-link ${currentView === 'pages' ? 'active' : ''}`}
+                        onClick={() => onNavigate('pages')}
+                    >
+                        <span className="nav-text">Tài khoản Trang</span>
+                    </a>
+                </li>
+                <li className="nav-item">
+                    <a 
+                        href="#" 
+                        className={`nav-link ${currentView === 'groups' ? 'active' : ''}`}
+                        onClick={() => onNavigate('groups')}
+                    >
+                        <span className="nav-text">Tài khoản Nhóm</span>
+                    </a>
+                </li>
                 <li className="nav-title">Tác vụ</li>
                 <li className="nav-item">
                     <a 
