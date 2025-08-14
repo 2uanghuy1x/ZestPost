@@ -27,6 +27,9 @@ export const csharpApi = {
     updateArticle: (article) => post({ action: 'mstUpdateArticle', payload: article }),
     deleteArticle: (article) => post({ action: 'mstDeleteArticle', payload: article }),
     
+    // Post Article
+    postArticle: (account) => post({ action: 'postArticle', payload: account }),
+
     // Event Listener Wrappers
     addEventListener: (event, handler) => {
         if (isWebView) {

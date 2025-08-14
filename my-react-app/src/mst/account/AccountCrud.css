@@ -2,16 +2,80 @@
 /* Most styles are shared from CategoryCrud.css, we just need to import them.
    The bundler (like Create React App) will handle this.
    If not using a bundler, you would copy the contents of CategoryCrud.css here. */
-@import '../category/CategoryCrud.css';
+   @import '../category/CategoryCrud.css';
 
-/* Specific adjustments for AccountCrud if needed */
-.modal-content form select {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    margin-bottom: 20px;
-    box-sizing: border-box;
-    background-color: white; /* Ensure select is styled like input */
-}
-
+   /* Specific adjustments for AccountCrud */
+   .modal-content {
+       max-width: 90%; /* Adjust as needed, makes it responsive */
+       width: 700px; /* Base width */
+       padding: 30px;
+       border-radius: 8px;
+       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+       overflow-y: auto; /* Enable scrolling for long forms */
+       max-height: 90vh; /* Limit height to viewport height */
+       position: fixed; /* Keep modal in place when scrolling */
+       top: 50%;
+       left: 50%;
+       transform: translate(-50%, -50%);
+   }
+   
+   .modal-content form {
+       display: grid;
+       grid-template-columns: 1fr 1fr; /* Two columns for input fields */
+       gap: 15px 25px; /* Row and column gap */
+   }
+   
+   .modal-content form .full-width {
+       grid-column: 1 / -1; /* Make specific fields span full width */
+   }
+   
+   .modal-content form label {
+       font-weight: 600;
+       margin-bottom: 5px;
+       display: block;
+       color: #333;
+   }
+   
+   .modal-content form input,
+   .modal-content form textarea,
+   .modal-content form select {
+       width: 100%;
+       padding: 12px;
+       border: 1px solid #ddd;
+       border-radius: 6px;
+       font-size: 1rem;
+       box-sizing: border-box;
+       transition: border-color 0.2s;
+   }
+   
+   .modal-content form input:focus,
+   .modal-content form textarea:focus,
+   .modal-content form select:focus {
+       border-color: #007bff;
+       outline: none;
+   }
+   
+   .modal-content form textarea {
+       resize: vertical;
+       min-height: 80px;
+   }
+   
+   .modal-content .form-actions {
+       grid-column: 1 / -1; /* Buttons span full width */
+       display: flex;
+       justify-content: flex-end;
+       gap: 10px;
+       margin-top: 25px;
+   }
+   
+   /* Responsive adjustments */
+   @media (max-width: 768px) {
+       .modal-content {
+           width: 95%;
+           max-width: none;
+       }
+       .modal-content form {
+           grid-template-columns: 1fr; /* Single column on smaller screens */
+       }
+   }
+   

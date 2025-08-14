@@ -1,4 +1,5 @@
 using Microsoft.Web.WebView2.Wpf;
+using Newtonsoft.Json.Serialization;
 using ZestPost.Controller;
 
 namespace ZestPost.Service
@@ -130,9 +131,10 @@ namespace ZestPost.Service
 
         private async Task HandleGeneralActions(string action, JToken payload)
         {
-            var numThread = _settingApp.ThreadAction;
+            //var numThread = _settingApp.ThreadAction ?? 1;
             ChromeBrowser chromeBrowser = new ChromeBrowser();
             chromeBrowser.OpenChrome("ZestPost");
+            chromeBrowser.GotoURL("https://www.facebook.com/");
             switch (action)
             {
                 case "postArticle":
@@ -145,14 +147,22 @@ namespace ZestPost.Service
         private async Task SendDataToWebView(string action, object data)
         {
             var message = new { action, payload = data };
-            string jsonResponse = JsonConvert.SerializeObject(message);
+            var settings = new JsonSerializerSettings
+            {
+                ContractResolver = new CamelCasePropertyNamesContractResolver()
+            };
+            string jsonResponse = JsonConvert.SerializeObject(message, settings);
             _webView.CoreWebView2.PostWebMessageAsJson(jsonResponse);
         }
 
         private async Task SendActionSuccess()
         {
             var message = new { action = "actionSuccess" };
-            string jsonResponse = JsonConvert.SerializeObject(message);
+            var settings = new JsonSerializerSettings
+            {
+                ContractResolver = new CamelCasePropertyNamesContractResolver()
+            };
+            string jsonResponse = JsonConvert.SerializeObject(message, settings);
             _webView.CoreWebView2.PostWebMessageAsJson(jsonResponse);
         }
     }

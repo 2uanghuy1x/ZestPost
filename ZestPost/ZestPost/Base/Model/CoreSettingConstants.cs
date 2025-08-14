@@ -1,4 +1,4 @@
-﻿namespace ZestPost.Base.Model
+﻿namespace ZestPost.Base
 {
     public class CoreSettingConstants
     {

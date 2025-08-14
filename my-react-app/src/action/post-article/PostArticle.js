@@ -10,6 +10,7 @@ const PostArticle = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [generalConfig, setGeneralConfig] = useState({});
     const [contentConfig, setContentConfig] = useState({});
+    const [selectedAccounts, setSelectedAccounts] = useState([]); // New state for selected accounts
 
     useEffect(() => {
         const handleMessage = (event) => {
@@ -31,11 +32,26 @@ const PostArticle = () => {
         };
     }, []);
 
-    const accountCategories = allCategories.filter(c => c.Type === 'account');
+    // Reset selected accounts when accounts or category filter changes
+    useEffect(() => {
+        setSelectedAccounts([]);
+    }, [allAccounts, selectedCategory, searchTerm]);
 
+    // Use c.type (camelCase) to filter categories
+    const accountCategories = allCategories.filter(c => c.type === 'account');
+
+    // Improved filtering for category and added UID search
     const filteredAccounts = allAccounts
-        .filter(a => !selectedCategory || a.categoryId === parseInt(selectedCategory))
-        .filter(a => a.name.toLowerCase().includes(searchTerm.toLowerCase()));
+        .filter(account => {
+            const matchesCategory = !selectedCategory || 
+                                    (account.categoryId && account.categoryId === selectedCategory);
+            
+            const lowerCaseSearchTerm = searchTerm.toLowerCase();
+            const matchesSearchTerm = account.name.toLowerCase().includes(lowerCaseSearchTerm) ||
+                                      (account.uid && account.uid.toLowerCase().includes(lowerCaseSearchTerm));
+            
+            return matchesCategory && matchesSearchTerm;
+        });
 
     const handleGeneralConfigChange = (e) => {
         setGeneralConfig({ ...generalConfig, [e.target.name]: e.target.value });
@@ -45,12 +61,48 @@ const PostArticle = () => {
         setContentConfig({ ...contentConfig, [e.target.name]: e.target.value });
     };
 
+    const handleAccountSelectChange = (accountId) => {
+        setSelectedAccounts(prevSelected =>
+            prevSelected.includes(accountId)
+                ? prevSelected.filter(id => id !== accountId)
+                : [...prevSelected, accountId]
+        );
+    };
+
+    const handleSelectAllChange = (e) => {
+        if (e.target.checked) {
+            setSelectedAccounts(filteredAccounts.map(account => account.id));
+        } else {
+            setSelectedAccounts([]);
+        }
+    };
+
+    const handleStartPosting = () => {
+        if (selectedAccounts.length === 0) {
+            alert("Vui lòng chọn ít nhất một tài khoản để đăng bài.");
+            return;
+        }
+
+        const selectedAccountsData = allAccounts.filter(account => selectedAccounts.includes(account.id));
+        
+        const postConfig = {
+            accounts: selectedAccountsData,
+            general: generalConfig,
+            content: contentConfig
+        };
+
+        csharpApi.postArticle(postConfig);
+        alert("Đã gửi yêu cầu đăng bài!");
+    };
+
+    const isAllSelected = filteredAccounts.length > 0 && selectedAccounts.length === filteredAccounts.length;
+
     return (
         <div className="post-article-container">
             <div className="main-content">
                 <div className="card">
                     <div className="card-header">
-                        <h3>Danh sách tài khoản</h3>
+                        <h3>Danh sách tài khoản ({selectedAccounts.length} đã chọn)</h3> {/* Display selected count */}
                     </div>
                     <div className="account-selection-header">
                         <select 
@@ -59,14 +111,14 @@ const PostArticle = () => {
                         >
                             <option value="">--Tất cả danh mục tài khoản--</option>
                             {accountCategories.map(category => (
-                                <option key={category.id} value={category.id}>
+                                <option key={category.id} value={category.id}> 
                                     {category.name}
                                 </option>
                             ))}
                         </select>
                         <input
                             type="text"
-                            placeholder="Tìm kiếm tài khoản..."
+                            placeholder="Tìm kiếm theo tên hoặc UID..."
                             className="account-search"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
@@ -77,17 +129,29 @@ const PostArticle = () => {
                         <table className="accounts-table">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
+                                    <th>
+                                        <input
+                                            type="checkbox"
+                                            onChange={handleSelectAllChange}
+                                            checked={isAllSelected}
+                                        />
+                                    </th>
                                     <th>Tên</th>
-                                    <th>Username</th>
+                                    <th>UID</th> 
                                 </tr>
                             </thead>
                             <tbody>
                                 {filteredAccounts.map(account => (
                                     <tr key={account.id}>
-                                        <td>{account.id}</td>
+                                        <td>
+                                            <input
+                                                type="checkbox"
+                                                checked={selectedAccounts.includes(account.id)}
+                                                onChange={() => handleAccountSelectChange(account.id)}
+                                            />
+                                        </td>
                                         <td>{account.name}</td>
-                                        <td>{account.username}</td>
+                                        <td>{account.uid}</td> 
                                     </tr>
                                 ))}
                             </tbody>
@@ -118,6 +182,7 @@ const PostArticle = () => {
                         <textarea id="content" name="content" rows="8" onChange={handleContentConfigChange}></textarea>
                     </form>
                 </div>
+                <button className="start-post-btn" onClick={handleStartPosting}>Bắt đầu Đăng bài</button> {/* Start Button */}
             </div>
         </div>
     );
