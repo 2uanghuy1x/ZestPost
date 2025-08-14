@@ -75,5 +75,86 @@ namespace ZestPost.Base
             _settingMain = new JsonConfigBuilder(BaseConstants.CORE_SETTING_FILE_NAME);
         }
 
+        public void OpenChrome(string name)
+        {
+            try
+            {
+                string data = AppDomain.CurrentDomain.BaseDirectory;
+                // Đường dẫn đến chromedriver.exe
+                string chromeDriverPath = Path.Combine(data, "chromedriver");
+                // Đường dẫn đến thư mục profile
+                string chromeProfilePath = Path.Combine(data, "ChromeProfile");
+                // Tạo thư mục profile nếu chưa tồn tại
+                if (!Directory.Exists(chromeProfilePath))
+                {
+                    Directory.CreateDirectory(chromeProfilePath);
+                }
+
+                // Cấu hình ChromeOptions
+                ChromeOptions = new ChromeOptions();
+                ChromeOptions.AddArgument($"user-data-dir={chromeProfilePath}"); // Sử dụng thư mục profile
+                ChromeOptions.AddArgument("--profile-directory=Default");  // Profile mặc định
+                ChromeOptions.AddArgument("--mute-audio");
+                // Đảm bảo không chạy ẩn danh
+                ChromeOptions.AddExcludedArgument("incognito");
+                if (!string.IsNullOrEmpty(UserAgent))
+                {
+                    ChromeOptions.AddArgument($"--user-agent={UserAgent}");
+                }
+                if (!Headless)
+                {
+                    ChromeOptions.AddArgument("--start-maximized"); // Tùy chọn: mở cửa sổ tối đa
+                }
+
+                var service = ChromeDriverService.CreateDefaultService(
+                    Path.GetDirectoryName(chromeDriverPath),
+                    Path.GetFileName(chromeProfilePath));
+                service.HideCommandPromptWindow = true;
+                ChromeDriver = new ChromeDriver(service, ChromeOptions);
+                ChromeDriver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(TimeWaitForSearchingElement);
+                ChromeDriver.Manage().Timeouts().PageLoad = TimeSpan.FromMinutes(TimeWaitForLoadingPage);
+                Process = Process.GetProcessById(service.ProcessId);
+            }
+            catch (Exception ex)
+            {
+                //MessageBox.Show($"Lỗi: {ex.Message}", "Lỗi");
+            }
+        }
+
+        public void CloseChrome()
+        {
+            try
+            {
+                if (!_isTerminating && ChromeDriver != null)
+                {
+                    _isTerminating = true;
+                    ChromeDriver.Quit();
+                    ChromeDriver.Dispose();
+                    ChromeDriver = null;
+
+                    if (Process != null)
+                    {
+                        if (!Process.HasExited)
+                        {
+                            Process.Kill();
+                            Process.Dispose();
+                        }
+                        Process = null;
+                    }
+
+                    Status = StatusChromeAccount.ChromeClosed;
+                    Console.WriteLine("Chrome closed successfully.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Log4NetSyncController.LogException(ex, "Error closing Chrome");
+                Status = StatusChromeAccount.Error;
+            }
+            finally
+            {
+                _isTerminating = false;
+            }
+        }
     }
 }

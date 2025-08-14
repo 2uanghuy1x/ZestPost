@@ -13,7 +13,8 @@ namespace ZestPost.Base.Enum
         Logined,
         NoInternet,
         Blocked,
-        Noveri
+        Noveri,
+        Error
     }
 
     public enum SelectorType

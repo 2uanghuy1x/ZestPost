@@ -1,27 +1,28 @@
 
 import React, { useState, useEffect } from 'react';
-import { csharpApi } from './api';
-import './CategoryCrud.css'; // We will create this CSS file next
+import { csharpApi } from '../../api';
+import './category/CategoryCrud.css'; // Reuse the same CSS for consistency
 
-function CategoryCrud() {
-    const [categories, setCategories] = useState([]);
+function ArticleCrud() {
+    const [articles, setArticles] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [currentCategory, setCurrentCategory] = useState(null);
+    const [currentArticle, setCurrentArticle] = useState(null);
 
     useEffect(() => {
         const handleMessage = (event) => {
             const message = event.data;
-            if (message.action === 'categoriesData') {
-                setCategories(message.payload);
+            if (message.action === 'articlesData') {
+                setArticles(message.payload);
             }
+            // Remove the csharpApi.getArticles() call from here
             if (message.action === 'actionSuccess') {
                 setIsModalOpen(false);
-                setCurrentCategory(null);
-                csharpApi.getCategories();
+                setCurrentArticle(null);
             }
         };
+
         csharpApi.addEventListener('message', handleMessage);
-        csharpApi.getCategories(); // Initial fetch
+        csharpApi.getArticles(); // Initial fetch
 
         return () => {
             csharpApi.removeEventListener('message', handleMessage);
@@ -29,59 +30,59 @@ function CategoryCrud() {
     }, []); // Empty dependency array means it runs only once on mount
 
     const handleAddNew = () => {
-        setCurrentCategory({ name: '', type: '' });
+        setCurrentArticle({ title: '', content: '' });
         setIsModalOpen(true);
     };
 
-    const handleEdit = (category) => {
-        setCurrentCategory(category);
+    const handleEdit = (article) => {
+        setCurrentArticle(article);
         setIsModalOpen(true);
     };
 
-    const handleDelete = (category) => {
-        if (window.confirm(`Are you sure you want to delete category ${category.name}?`)) {
-            csharpApi.deleteCategory(category);
+    const handleDelete = (article) => {
+        if (window.confirm(`Are you sure you want to delete article "${article.title}"?`)) {
+            csharpApi.deleteArticle(article);
         }
     };
 
     const handleSave = (e) => {
         e.preventDefault();
-        if (currentCategory.id) {
-            csharpApi.updateCategory(currentCategory);
+        if (currentArticle.id) {
+            csharpApi.updateArticle(currentArticle);
         } else {
-            csharpApi.addCategory(currentCategory);
+            csharpApi.addArticle(currentArticle);
         }
     };
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setCurrentCategory({ ...currentCategory, [name]: value });
+        setCurrentArticle({ ...currentArticle, [name]: value });
     };
 
     return (
         <div className="crud-container">
             <div className="card">
                 <div className="card-header">
-                    <h3>Quản lý Danh mục</h3>
+                    <h3>Quản lý Nội dung Bài viết</h3>
                     <button className="add-new-btn" onClick={handleAddNew}>+ Thêm mới</button>
                 </div>
                 <div className="table-container">
                     <table className="crud-table">
                         <thead>
                             <tr>
-                                <th>Tên danh mục</th>
-                                <th>Loại</th>
+                                <th>Tiêu đề</th>
+                                <th>Nội dung (xem trước)</th>
                                 <th className="actions-column">Hành động</th>
                             </tr>
                         </thead>
                         <tbody>
-                        {categories.map((category, index) => (
-                                <tr key={category.Id || `category-${index}`}>
-                                    <td>{category.Name}</td>
-                                    <td>{category.Type}</td>
+                            {articles.map((article) => (
+                                <tr key={article.id}>
+                                    <td>{article.title}</td>
+                                    <td>{`${article.content.substring(0, 100)}...`}</td>
                                     <td className="actions-column">
-                                        <button className="action-btn edit" onClick={() => handleEdit(category)}>Sửa</button>
-                                        <button className="action-btn delete" onClick={() => handleDelete(category)}>Xóa</button>
+                                        <button className="action-btn edit" onClick={() => handleEdit(article)}>Sửa</button>
+                                        <button className="action-btn delete" onClick={() => handleDelete(article)}>Xóa</button>
                                     </td>
                                 </tr>
                             ))}
@@ -94,15 +95,22 @@ function CategoryCrud() {
                 <div className="modal">
                     <div className="modal-content">
                         <div className="modal-header">
-                            <h2>{currentCategory && currentCategory.id ? 'Sửa danh mục' : 'Thêm danh mục'}</h2>
+                            <h2>{currentArticle && currentArticle.id ? 'Sửa bài viết' : 'Thêm bài viết'}</h2>
                             <button className="close-btn" onClick={() => setIsModalOpen(false)}>&times;</button>
                         </div>
                         <form onSubmit={handleSave}>
-                            <label>Tên danh mục:</label>
-                            <input name="name" value={currentCategory ? currentCategory.name : ''} onChange={handleInputChange} required />
+                            <label>Tiêu đề:</label>
+                            <input name="title" value={currentArticle?.title || ''} onChange={handleInputChange} required />
                             
-                            <label>Loại:</label>
-                            <input name="type" value={currentCategory ? currentCategory.type : ''} onChange={handleInputChange} />
+                            <label>Nội dung:</label>
+                            <textarea 
+                                name="content" 
+                                value={currentArticle?.content || ''} 
+                                onChange={handleInputChange} 
+                                rows="10"
+                                style={{ width: '100%', boxSizing: 'border-box', marginBottom: '20px', padding: '10px' }}
+                                required 
+                            />
                             
                             <div className="form-actions">
                                 <button type="submit" className="action-btn save">Lưu</button>
@@ -116,4 +124,4 @@ function CategoryCrud() {
     );
 }
 
-export default CategoryCrud;
+export default ArticleCrud;

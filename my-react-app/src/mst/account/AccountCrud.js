@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
-import { csharpApi } from './api';
-import './AccountCrud.css';
+import { csharpApi } from '../../api';
+import './account/AccountCrud.css';
 
 function AccountCrud() {
     const [accounts, setAccounts] = useState([]);
@@ -34,7 +34,7 @@ function AccountCrud() {
         };
     }, []); // Empty dependency array means it runs only once on mount
     
-    const accountCategories = categories.filter(c => c.type === 'Account');
+    const accountCategories = categories.filter(c => c.Type === 'account');
 
     const handleAddNew = () => {
         setCurrentAccount({ name: '', username: '', password: '', categoryId: '' });

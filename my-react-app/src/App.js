@@ -1,9 +1,9 @@
 
 import React, { useState } from 'react';
-import AccountCrud from './AccountCrud';
-import CategoryCrud from './CategoryCrud';
-import ArticleCrud from './ArticleCrud'; // Import the new ArticleCrud
-import PostArticle from './PostArticle';
+import AccountCrud from './mst/account/AccountCrud';
+import CategoryCrud from './mst/category/CategoryCrud';
+import ArticleCrud from './mst/mst-article/ArticleCrud'; // Import the new ArticleCrud
+import PostArticle from './action/post-article/PostArticle';
 import Sidebar from './Sidebar';
 import './App.css';
 

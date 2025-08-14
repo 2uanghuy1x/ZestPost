@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
-import { csharpApi } from './api';
-import './PostArticle.css'; // Using the revamped CSS
+import { csharpApi } from '../../api';
+import './action/post-article/PostArticle.css'; // Using the revamped CSS
 
 const PostArticle = () => {
     const [allCategories, setAllCategories] = useState([]);
@@ -31,7 +31,7 @@ const PostArticle = () => {
         };
     }, []);
 
-    const accountCategories = allCategories.filter(c => c.type === 'Account');
+    const accountCategories = allCategories.filter(c => c.Type === 'account');
 
     const filteredAccounts = allAccounts
         .filter(a => !selectedCategory || a.categoryId === parseInt(selectedCategory))
