@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { csharpApi } from '../../api';
-import './category/CategoryCrud.css'; // Reuse the same CSS for consistency
+import '../category/CategoryCrud.css';
 
 function ArticleCrud() {
     const [articles, setArticles] = useState([]);

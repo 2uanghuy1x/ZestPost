@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { csharpApi } from '../../api';
-import './action/post-article/PostArticle.css'; // Using the revamped CSS
+import './PostArticle.css'; // Corrected import path
 
 const PostArticle = () => {
     const [allCategories, setAllCategories] = useState([]);

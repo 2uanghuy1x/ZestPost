@@ -2,7 +2,7 @@
 /* Most styles are shared from CategoryCrud.css, we just need to import them.
    The bundler (like Create React App) will handle this.
    If not using a bundler, you would copy the contents of CategoryCrud.css here. */
-@import './CategoryCrud.css';
+@import '../category/CategoryCrud.css';
 
 /* Specific adjustments for AccountCrud if needed */
 .modal-content form select {

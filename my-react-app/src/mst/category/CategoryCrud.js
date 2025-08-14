@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
-import { csharpApi } from './api';
-import './category/CategoryCrud.css'; // We will create this CSS file next
+import { csharpApi } from '../../api';
+import './CategoryCrud.css'; 
 
 function CategoryCrud() {
     const [categories, setCategories] = useState([]);
