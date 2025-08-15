@@ -1,0 +1,139 @@
+@import '../category/CategoryCrud.css';
+
+.account-page-group-manager-container {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+.column-account {
+    flex: 1;
+    min-width: 300px;
+    display: flex;
+    flex-direction: column;
+}
+
+.column-page-group {
+    flex: 2; /* Takes more space than the account column */
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    flex-grow: 1; /* Allow cards to grow and fill available space */
+    display: flex;
+    flex-direction: column;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.card-header h3 {
+    margin: 0;
+    color: #333;
+}
+
+.table-container {
+    overflow-y: auto; /* Enable scrolling for tables if content overflows */
+    flex-grow: 1; /* Allow table container to grow */
+}
+
+.crud-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.crud-table th,
+.crud-table td {
+    border: 1px solid #e0e0e0;
+    padding: 10px;
+    text-align: left;
+    vertical-align: top;
+}
+
+.crud-table th {
+    background-color: #f8f8f8;
+    font-weight: 600;
+    color: #555;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.crud-table tbody tr:hover {
+    background-color: #f5f5f5;
+    cursor: pointer;
+}
+
+.crud-table tbody tr.selected-row {
+    background-color: #e6f7ff; /* Light blue for selected row */
+    border-left: 3px solid #007bff;
+}
+
+.actions-column {
+    width: 1%; /* Shrink column to fit content */
+    white-space: nowrap;
+    text-align: center;
+}
+
+.action-btn {
+    padding: 6px 12px;
+    margin: 0 3px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85em;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.action-btn:hover {
+    transform: translateY(-1px);
+}
+
+.action-btn.scan {
+    background-color: #ffc107;
+    color: #333;
+}
+
+.action-btn.scan:hover {
+    background-color: #e0a800;
+}
+
+.action-btn.delete {
+    background-color: #dc3545;
+    color: white;
+}
+
+.action-btn.delete:hover {
+    background-color: #c82333;
+}
+
+/* No more specific styling for .scan-controls, .scan-options, .scan-result 
+   as they are no longer part of this component's direct UI structure */
+
+/* Ensure the table's body has a scrollbar if content is too long */
+.table-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 4px;
+}
+
+.table-container::-webkit-scrollbar-track {
+    background-color: #f1f1f1;
+}

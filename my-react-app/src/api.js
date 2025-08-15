@@ -29,21 +29,19 @@ export const csharpApi = {
 
     // History Account Actions
     getHistoryAccounts: () => post({ action: 'mstGetHistoryAccounts' }),
-    addHistoryAccount: (historyAccount) => post({ action: 'mstAddHistoryAccount', payload: historyAccount }),
-    updateHistoryAccount: (historyAccount) => post({ action: 'mstUpdateHistoryAccount', payload: historyAccount }),
     deleteHistoryAccount: (historyAccount) => post({ action: 'mstDeleteHistoryAccount', payload: historyAccount }),
 
     // Page Account Actions
     getPageAccounts: () => post({ action: 'mstGetPageAccounts' }),
-    addPageAccount: (pageAccount) => post({ action: 'mstAddPageAccount', payload: pageAccount }),
-    updatePageAccount: (pageAccount) => post({ action: 'mstUpdatePageAccount', payload: pageAccount }),
+    getPagesByAccountId: (accountId) => post({ action: 'mstGetPagesByAccountId', payload: accountId }),
     deletePageAccount: (pageAccount) => post({ action: 'mstDeletePageAccount', payload: pageAccount }),
+    scanPageAccount: (pageAccount) => post({ action: 'mstScanPageAccount', payload: pageAccount }),
 
     // Group Account Actions
     getGroupAccounts: () => post({ action: 'mstGetGroupAccounts' }),
-    addGroupAccount: (groupAccount) => post({ action: 'mstAddGroupAccount', payload: groupAccount }),
-    updateGroupAccount: (groupAccount) => post({ action: 'mstUpdateGroupAccount', payload: groupAccount }),
+    getGroupsByPageId: (pageId) => post({ action: 'mstGetGroupsByPageId', payload: pageId }),
     deleteGroupAccount: (groupAccount) => post({ action: 'mstDeleteGroupAccount', payload: groupAccount }),
+    scanGroupAccount: (groupAccount) => post({ action: 'mstScanGroupAccount', payload: groupAccount }),
     
     // Post Article
     postArticle: (account) => post({ action: 'postArticle', payload: account }),

@@ -74,6 +74,15 @@ const Sidebar = ({ onNavigate, currentView }) => {
                         <span className="nav-text">Đăng bài</span>
                     </a>
                 </li>
+                 <li className="nav-item">
+                    <a 
+                        href="#" 
+                        className={`nav-link ${currentView === 'scan-accounts' ? 'active' : ''}`}
+                        onClick={() => onNavigate('scan-accounts')}
+                    >
+                        <span className="nav-text">Quét Page/Group</span>
+                    </a>
+                </li>
             </ul>
         </div>
     );

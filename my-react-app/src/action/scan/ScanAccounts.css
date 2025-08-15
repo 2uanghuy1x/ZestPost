@@ -1,0 +1,237 @@
+.scan-accounts-container {
+    display: flex;
+    flex-wrap: wrap; /* Allow wrapping for smaller screens */
+    gap: 20px;
+    padding: 20px;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+.main-scan-section {
+    flex: 2; /* Main section for account selection, takes more space */
+    min-width: 450px;
+    display: flex;
+    flex-direction: column;
+}
+
+.scan-options-section {
+    flex: 1; /* Section for scan controls and results, takes less space */
+    min-width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.scan-results-tables {
+    flex-basis: 100%; /* Make this section take full width below others */
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap; /* Allow page and group tables to wrap */
+}
+
+.account-selection-card, .scan-control-card, .page-table-card, .group-table-card, .scan-result-card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; /* Allow cards to grow */
+}
+
+.page-table-card, .group-table-card {
+    flex: 1; /* Distribute space evenly for page and group tables */
+    min-width: 45%; /* Ensure they don't get too small */
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.card-header h3 {
+    margin: 0;
+    color: #333;
+}
+
+.controls-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #333;
+}
+
+.form-group select,
+.form-group input[type="text"] {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.table-container {
+    overflow-y: auto; 
+    flex-grow: 1; 
+}
+
+.account-table-container {
+    max-height: 400px; /* Specific height for account table */
+}
+
+.crud-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.crud-table th,
+.crud-table td {
+    border: 1px solid #e0e0e0;
+    padding: 10px;
+    text-align: left;
+    vertical-align: top;
+}
+
+.crud-table th {
+    background-color: #f8f8f8;
+    font-weight: 600;
+    color: #555;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.crud-table tbody tr:hover {
+    background-color: #f5f5f5;
+}
+
+.crud-table tbody tr.selected-row {
+    background-color: #e6f7ff; 
+    border-left: 3px solid #007bff;
+}
+
+.actions-column {
+    width: 1%; 
+    white-space: nowrap;
+    text-align: center;
+}
+
+.action-btn {
+    padding: 6px 12px;
+    margin: 0 3px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85em;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.action-btn:hover {
+    transform: translateY(-1px);
+}
+
+.action-btn.scan {
+    background-color: #ffc107;
+    color: #333;
+}
+
+.action-btn.scan:hover {
+    background-color: #e0a800;
+}
+
+.action-btn.delete {
+    background-color: #dc3545;
+    color: white;
+}
+
+.action-btn.delete:hover {
+    background-color: #c82333;
+}
+
+/* Scan Options specific styles */
+.scan-options-content {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.checkbox-group input[type="checkbox"] {
+    transform: scale(1.2);
+}
+
+.scan-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.action-btn.start-scan {
+    background-color: #28a745; 
+    color: white;
+    padding: 10px 20px;
+    font-size: 1rem;
+}
+
+.action-btn.start-scan:hover {
+    background-color: #218838;
+}
+
+.action-btn.start-scan:disabled {
+    background-color: #94d3a2;
+    cursor: not-allowed;
+}
+
+.action-btn.stop-scan {
+    background-color: #6c757d;
+    color: white;
+    padding: 10px 20px;
+    font-size: 1rem;
+}
+
+.action-btn.stop-scan:hover {
+    background-color: #5a6268;
+}
+
+.action-btn.stop-scan:disabled {
+    background-color: #b0b5ba;
+    cursor: not-allowed;
+}
+
+.scan-result-card {
+    margin-top: 20px;
+}
+
+.scan-result-content {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    padding: 15px;
+    border-radius: 5px;
+    font-family: 'Courier New', Courier, monospace;
+    white-space: pre-wrap;
+    word-break: break-all;
+    max-height: 200px; /* Limit height for result display */
+    overflow-y: auto;
+}

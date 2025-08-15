@@ -4,9 +4,10 @@ import AccountCrud from './mst/account/AccountCrud';
 import CategoryCrud from './mst/category/CategoryCrud';
 import ArticleCrud from './mst/mst-article/ArticleCrud';
 import HistoryAccountCrud from './mst/history/HistoryAccountCrud';
-import PageAccountCrud from './mst/page/PageAccountCrud';
+import AccountPageGroupManager from './mst/page/AccountPageGroupManager'; 
 import GroupAccountCrud from './mst/group/GroupAccountCrud';
 import PostArticle from './action/post-article/PostArticle';
+import ScanAccounts from './action/scan/ScanAccounts'; // Keep this import
 import Sidebar from './Sidebar';
 import './App.css';
 
@@ -31,14 +32,17 @@ function App() {
         case 'history':
             content = <HistoryAccountCrud />;
             break;
-        case 'pages':
-            content = <PageAccountCrud />;
+        case 'pages': // This case now renders AccountPageGroupManager
+            content = <AccountPageGroupManager />;
             break;
         case 'groups':
             content = <GroupAccountCrud />;
             break;
         case 'post-article':
             content = <PostArticle />;
+            break;
+        case 'scan-accounts': // Add new case for ScanAccounts
+            content = <ScanAccounts />;
             break;
         default:
             content = <AccountCrud />;
