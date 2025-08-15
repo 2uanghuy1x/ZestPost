@@ -11,6 +11,7 @@ const PostArticle = () => {
     const [generalConfig, setGeneralConfig] = useState({});
     const [contentConfig, setContentConfig] = useState({});
     const [selectedAccounts, setSelectedAccounts] = useState([]); // New state for selected accounts
+    const [isPosting, setIsPosting] = useState(false); // New state to track if posting is active
 
     useEffect(() => {
         const handleMessage = (event) => {
@@ -20,6 +21,9 @@ const PostArticle = () => {
             }
             if (message.action === 'accountsData') {
                 setAllAccounts(message.payload);
+            }
+            if (message.action === 'postingStopped' || message.action === 'postingCompleted') {
+                setIsPosting(false); // Stop posting state when stopped or completed
             }
         };
 
@@ -92,7 +96,12 @@ const PostArticle = () => {
         };
 
         csharpApi.postArticle(postConfig);
+        setIsPosting(true); // Set posting state to true
         alert("Đã gửi yêu cầu đăng bài!");
+    };
+
+    const handleStopPosting = () => {
+        csharpApi.cancelPostArticle(); // Call new C# API function to cancel
     };
 
     const isAllSelected = filteredAccounts.length > 0 && selectedAccounts.length === filteredAccounts.length;
@@ -114,7 +123,7 @@ const PostArticle = () => {
                                 <option key={category.id} value={category.id}> 
                                     {category.name}
                                 </option>
-                            ))}
+                            ))}\
                         </select>
                         <input
                             type="text"
@@ -153,7 +162,7 @@ const PostArticle = () => {
                                         <td>{account.name}</td>
                                         <td>{account.uid}</td> 
                                     </tr>
-                                ))}
+                                ))}\
                             </tbody>
                         </table>
                     </div>
@@ -182,7 +191,11 @@ const PostArticle = () => {
                         <textarea id="content" name="content" rows="8" onChange={handleContentConfigChange}></textarea>
                     </form>
                 </div>
-                <button className="start-post-btn" onClick={handleStartPosting}>Bắt đầu Đăng bài</button> {/* Start Button */}
+                {isPosting ? (
+                    <button className="stop-post-btn" onClick={handleStopPosting}>Dừng Đăng bài</button>
+                ) : (
+                    <button className="start-post-btn" onClick={handleStartPosting}>Bắt đầu Đăng bài</button>
+                )}
             </div>
         </div>
     );

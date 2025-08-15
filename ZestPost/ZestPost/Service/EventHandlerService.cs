@@ -2,6 +2,12 @@ using Microsoft.Web.WebView2.Wpf;
 using Newtonsoft.Json.Serialization;
 using ZestPost.Controller;
 using ZestPost.DbService.Entity;
+using Newtonsoft.Json.Linq; // Add this using directive for JObject and JToken
+using System.Threading; // Add this using directive for CancellationTokenSource
+using System.Threading.Tasks; // Add this using directive for Task
+using System.Windows; // Add this using directive for MessageBox and Application
+using System; // Add this for Exception
+using System.Collections.Generic; // Add this for List
 
 namespace ZestPost.Service
 {
@@ -16,6 +22,8 @@ namespace ZestPost.Service
         private readonly PostArticleController _postArticleController;
         private readonly SettingApp _settingApp;
         private readonly WebView2 _webView;
+
+        private CancellationTokenSource _currentCancellationTokenSource; // New field for cancellation
 
         public EventHandlerService(ZestPostContext context, WebView2 webView)
         {
@@ -48,7 +56,61 @@ namespace ZestPost.Service
                     }
                     else
                     {
-                        await HandleGeneralActions(action, payload);
+                        // Handle general actions, including cancellation
+                        if (action == "postArticle" || action == "scanAccounts") // Add new actions here if they need cancellation
+                        {
+                            // If a previous operation is still running, cancel it first (optional, depends on desired behavior)
+                            _currentCancellationTokenSource?.Cancel();
+                            _currentCancellationTokenSource?.Dispose();
+                            
+                            _currentCancellationTokenSource = new CancellationTokenSource();
+                            try
+                            {
+                                await HandleGeneralActions(action, payload, _currentCancellationTokenSource.Token);
+                                // Send specific completion messages based on action
+                                if (action == "postArticle")
+                                {
+                                    await SendDataToWebView("postingCompleted", null); // Notify FE that posting is completed
+                                }
+                                else if (action == "scanAccounts")
+                                {
+                                    await SendDataToWebView("scanningCompleted", null); // Notify FE that scanning is completed
+                                }
+                            }
+                            catch (OperationCanceledException)
+                            {
+                                // Send specific stopped messages based on action
+                                if (action == "postArticle")
+                                {
+                                    await SendDataToWebView("postingStopped", "Operation canceled by user."); // Notify FE that posting stopped
+                                    MessageBox.Show("Hoạt động đăng bài đã bị hủy bỏ.", "Hủy bỏ");
+                                }
+                                else if (action == "scanAccounts")
+                                {
+                                    await SendDataToWebView("scanningStopped", "Operation canceled by user."); // Notify FE that scanning stopped
+                                    MessageBox.Show("Hoạt động quét tài khoản đã bị hủy bỏ.", "Hủy bỏ");
+                                }
+                            }
+                            finally
+                            {
+                                _currentCancellationTokenSource?.Dispose();
+                                _currentCancellationTokenSource = null;
+                            }
+                        }
+                        else if (action == "cancelPostArticle")
+                        {
+                            _currentCancellationTokenSource?.Cancel();
+                            // No need for a message box here, FE will handle UI update
+                        }
+                        else if (action == "cancelScanAccounts") // New cancellation action
+                        {
+                            _currentCancellationTokenSource?.Cancel();
+                        }
+                        else
+                        {
+                            // For other general actions that don't involve cancellation
+                            await HandleGeneralActions(action, payload, CancellationToken.None);
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -201,25 +263,58 @@ namespace ZestPost.Service
                     if (payload != null && payload["id"] != null)
                     {
                         var groupAccountId = payload["id"].ToObject<int>();
-                        _groupAccountController.Delete(groupAccountId);
+                        _groupAccountController.Delete(groupId);
                         await SendDataToWebView("groupAccountsData", _groupAccountController.GetAll());
                     }
                     break;
             }
         }
 
-        private async Task HandleGeneralActions(string action, JToken payload)
+        private async Task HandleGeneralActions(string action, JToken payload, CancellationToken cancellationToken)
         {
             //var numThread = _settingApp.ThreadAction ?? 1;
-            ChromeBrowser chromeBrowser = new ChromeBrowser();
-            chromeBrowser.OpenChrome("ZestPost");
-            chromeBrowser.GotoURL("https://www.facebook.com/");
+            // ChromeBrowser chromeBrowser = new ChromeBrowser();
+            // chromeBrowser.OpenChrome("ZestPost");
+            // chromeBrowser.GotoURL("https://www.facebook.com/");
+            // The browser operations might need to be within the cancellable scope too.
+            // For now, assuming they are quick initializations.
+
             switch (action)
             {
                 case "postArticle":
-                    _postArticleController.ProcessArticlePost(payload);
-                    await SendActionSuccess();
+                    var accountsForPost = payload["accounts"]?.ToObject<List<AccountFB>>();
+                    var generalConfigForPost = payload["general"];
+                    var contentConfigForPost = payload["content"];
+
+                    if (accountsForPost == null || generalConfigForPost == null || contentConfigForPost == null)
+                    {
+                        MessageBox.Show("Dữ liệu gửi không đúng định dạng cho hành động đăng bài.", "Lỗi dữ liệu");
+                        return;
+                    }
+
+                    // Pass the separated data and cancellationToken to the controller
+                    await _postArticleController.ProcessArticlePost(accountsForPost, generalConfigForPost, contentConfigForPost, cancellationToken);
                     break;
+
+                case "scanAccounts": // New action case
+                    var accountsForScan = payload["accounts"]?.ToObject<List<AccountFB>>();
+                    var scanConfig = payload["config"]; // Assuming a 'config' property for scan data
+
+                    if (accountsForScan == null || scanConfig == null)
+                    {
+                        MessageBox.Show("Dữ liệu gửi không đúng định dạng cho hành động quét tài khoản.", "Lỗi dữ liệu");
+                        return;
+                    }
+
+                    // Call a new method in PostArticleController or a new specialized controller
+                    await _postArticleController.ProcessScanAccounts(accountsForScan, scanConfig, cancellationToken);
+                    break;
+
+                // Add more cases for other general actions here, following the same pattern
+                // case "yourNewAction":
+                //     // Extract data from payload
+                //     // Call corresponding controller method with data and cancellationToken
+                //     break;
             }
         }
 
