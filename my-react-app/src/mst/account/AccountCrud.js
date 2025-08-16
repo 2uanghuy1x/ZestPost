@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { csharpApi } from '../../api';
 import './AccountCrud.css';
@@ -6,7 +5,9 @@ import '../category/CategoryCrud.css'; // Added this line to import CategoryCrud
 
 function AccountCrud() {
     const [accounts, setAccounts] = useState([]);
+    const [allAccounts, setAllAccounts] = useState([]); // Store all accounts fetched
     const [categories, setCategories] = useState([]);
+    const [selectedCategory, setSelectedCategory] = useState(''); // State for selected category filter
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentAccount, setCurrentAccount] = useState(null);
 
@@ -15,14 +16,16 @@ function AccountCrud() {
             const message = event.data;
             if (message.action === 'accountsData') {
                 setAccounts(message.payload);
+                setAllAccounts(message.payload); // Store all accounts
             }
             if (message.action === 'categoriesData') {
                 setCategories(message.payload);
             }
-            // Remove the csharpApi.getAccounts() call from here
             if (message.action === 'actionSuccess') {
                 setIsModalOpen(false);
                 setCurrentAccount(null);
+                // Re-fetch all accounts to update the list after a CRUD operation
+                csharpApi.getAccounts();
             }
         };
 
@@ -33,9 +36,19 @@ function AccountCrud() {
         return () => {
             csharpApi.removeEventListener('message', handleMessage);
         };
-    }, []); // Empty dependency array means it runs only once on mount
+    }, []);
     
     const accountCategories = categories.filter(c => c.type === 'account');
+
+    // Effect to filter accounts based on selectedCategory or display allAccounts
+    useEffect(() => {
+        if (selectedCategory) {
+            const filtered = allAccounts.filter(account => account.categoryId === selectedCategory);
+            setAccounts(filtered);
+        } else {
+            setAccounts(allAccounts);
+        }
+    }, [selectedCategory, allAccounts]);
 
     const handleAddNew = () => {
         setCurrentAccount({
@@ -49,7 +62,7 @@ function AccountCrud() {
             mailrecovery: '',
             privatekey: '',
             avatar: '',
-            categoryId: ''
+            categoryId: '' // Initialize with empty string for no selection
         });
         setIsModalOpen(true);
     };
@@ -69,7 +82,8 @@ function AccountCrud() {
         e.preventDefault();
         const accountToSave = {
             ...currentAccount,
-            categoryId: parseInt(currentAccount.categoryId, 10) || null
+            // Ensure categoryId is correctly handled. If it's an empty string, set it to null
+            categoryId: currentAccount.categoryId === '' ? null : currentAccount.categoryId
         };
         if (accountToSave.id) {
             csharpApi.updateAccount(accountToSave);
@@ -83,6 +97,10 @@ function AccountCrud() {
         setCurrentAccount({ ...currentAccount, [name]: value });
     };
 
+    const handleCategoryFilterChange = (e) => {
+        setSelectedCategory(e.target.value);
+    };
+
     const getCategoryName = (categoryId) => {
         const category = categories.find(c => c.id === categoryId);
         return category ? category.name : 'N/A';
@@ -94,6 +112,15 @@ function AccountCrud() {
                 <div className="card-header">
                     <h3>Quản lý Tài khoản</h3>
                     <button className="add-new-btn" onClick={handleAddNew}>+ Thêm mới</button>
+                </div>
+                <div className="filter-section">
+                    <label htmlFor="categoryFilter">Lọc theo danh mục:</label>
+                    <select id="categoryFilter" value={selectedCategory} onChange={handleCategoryFilterChange}>
+                        <option value="">Tất cả danh mục</option>
+                        {accountCategories.map(category => (
+                            <option key={category.id} value={category.id}>{category.name}</option>
+                        ))}
+                    </select>
                 </div>
                 <div className="table-container">
                     <table className="crud-table">

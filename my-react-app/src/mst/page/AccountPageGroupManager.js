@@ -5,12 +5,14 @@ import '../account/AccountCrud.css'; // Reusing some account styles
 
 function AccountPageGroupManager() {
     const [accounts, setAccounts] = useState([]);
+    const [allAccounts, setAllAccounts] = useState([]); // Store all accounts fetched
     const [pages, setPages] = useState([]);
     const [groups, setGroups] = useState([]);
     const [categories, setCategories] = useState([]);
 
     const [selectedAccountId, setSelectedAccountId] = useState(null);
     const [selectedPageId, setSelectedPageId] = useState(null);
+    const [selectedCategory, setSelectedCategory] = useState(''); // State for selected category filter
 
     const [loadingAccounts, setLoadingAccounts] = useState(false);
     const [loadingPages, setLoadingPages] = useState(false);
@@ -22,6 +24,7 @@ function AccountPageGroupManager() {
             const message = event.data;
             if (message.action === 'accountsData') {
                 setAccounts(message.payload);
+                setAllAccounts(message.payload); // Store all accounts
                 setLoadingAccounts(false);
             }
             if (message.action === 'categoriesData') {
@@ -45,8 +48,9 @@ function AccountPageGroupManager() {
                 } else if (selectedAccountId) {
                     csharpApi.getPagesByAccountId(selectedAccountId);
                 } else {
-                    csharpApi.getAccounts();
+                    csharpApi.getAccounts(); // Refresh accounts
                 }
+                csharpApi.getCategories(); // Refresh categories in case they changed
             }
         };
 
@@ -59,7 +63,23 @@ function AccountPageGroupManager() {
         return () => {
             csharpApi.removeEventListener('message', handleMessage);
         };
-    }, [selectedAccountId, selectedPageId]); // Re-run if selection changes to ensure fresh data
+    }, [selectedAccountId, selectedPageId]); // Keep dependencies to ensure fetches are tied to selections
+
+    // Effect to filter accounts based on selectedCategory or display allAccounts
+    useEffect(() => {
+        if (selectedCategory) {
+            const filtered = allAccounts.filter(account => account.categoryId === selectedCategory);
+            setAccounts(filtered);
+            // If the currently selected account is filtered out, clear selection
+            if (selectedAccountId && !filtered.some(acc => acc.id === selectedAccountId)) {
+                setSelectedAccountId(null);
+                setSelectedPageId(null); // Also clear page selection
+            }
+        } else {
+            setAccounts(allAccounts);
+        }
+    }, [selectedCategory, allAccounts, selectedAccountId]);
+
 
     // Fetch pages when selectedAccount changes
     useEffect(() => {
@@ -114,12 +134,27 @@ function AccountPageGroupManager() {
         return category ? category.name : 'N/A';
     };
 
+    const accountCategories = categories.filter(c => c.type === 'account');
+
+    const handleCategoryFilterChange = (e) => {
+        setSelectedCategory(e.target.value);
+    };
+
     return (
         <div className="account-page-group-manager-container">
             <div className="column-account">
                 <div className="card">
                     <div className="card-header">
                         <h3>Tài khoản</h3>
+                    </div>
+                    <div className="filter-section">
+                        <label htmlFor="accountCategoryFilter">Lọc theo danh mục tài khoản:</label>
+                        <select id="accountCategoryFilter" value={selectedCategory} onChange={handleCategoryFilterChange}>
+                            <option value="">Tất cả danh mục</option>
+                            {accountCategories.map(category => (
+                                <option key={category.id} value={category.id}>{category.name}</option>
+                            ))}
+                        </select>
                     </div>
                     <div className="table-container">
                         <table className="crud-table">
