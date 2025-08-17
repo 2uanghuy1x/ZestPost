@@ -1,5 +1,4 @@
 using ZestPost.Service;
-using ZestPost.DbService.Entity;
 
 namespace ZestPost.Controller
 {
@@ -33,19 +32,6 @@ namespace ZestPost.Controller
             if (historyAccount != null)
             {
                 _context.HistoryAccounts.Add(historyAccount);
-                _context.SaveChanges();
-                _cache.Remove(CacheKey); // Invalidate cache
-            }
-        }
-
-        public void Update(HistoryAccount historyAccount)
-        {
-            var existingHistoryAccount = _context.HistoryAccounts.Find(historyAccount.Id);
-            if (existingHistoryAccount != null)
-            {
-                existingHistoryAccount.AccountId = historyAccount.AccountId;
-                existingHistoryAccount.Action = historyAccount.Action;
-                existingHistoryAccount.Timestamp = historyAccount.Timestamp;
                 _context.SaveChanges();
                 _cache.Remove(CacheKey); // Invalidate cache
             }

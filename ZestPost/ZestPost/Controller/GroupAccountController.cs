@@ -1,5 +1,4 @@
 using ZestPost.Service;
-using ZestPost.DbService.Entity;
 
 namespace ZestPost.Controller
 {
@@ -33,19 +32,6 @@ namespace ZestPost.Controller
             if (groupAccount != null)
             {
                 _context.GroupAccounts.Add(groupAccount);
-                _context.SaveChanges();
-                _cache.Remove(CacheKey); // Invalidate cache
-            }
-        }
-
-        public void Update(GroupAccount groupAccount)
-        {
-            var existingGroupAccount = _context.GroupAccounts.Find(groupAccount.Id);
-            if (existingGroupAccount != null)
-            {
-                existingGroupAccount.Name = groupAccount.Name;
-                existingGroupAccount.GroupId = groupAccount.GroupId;
-                existingGroupAccount.CategoryId = groupAccount.CategoryId;
                 _context.SaveChanges();
                 _cache.Remove(CacheKey); // Invalidate cache
             }

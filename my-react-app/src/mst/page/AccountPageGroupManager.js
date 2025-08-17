@@ -160,7 +160,6 @@ function AccountPageGroupManager() {
                         <table className="crud-table">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
                                     <th>Tên</th>
                                     <th>UID</th>
                                     <th>Danh mục</th>
@@ -176,7 +175,6 @@ function AccountPageGroupManager() {
                                             onClick={() => handleAccountClick(account)}
                                             className={selectedAccountId === account.id ? 'selected-row' : ''}
                                         >
-                                            <td>{account.id}</td>
                                             <td>{account.name}</td>
                                             <td>{account.uid}</td>
                                             <td>{getCategoryName(account.categoryId)}</td>

@@ -1,5 +1,4 @@
 using ZestPost.Service;
-using ZestPost.DbService.Entity;
 
 namespace ZestPost.Controller
 {
@@ -38,19 +37,6 @@ namespace ZestPost.Controller
             }
         }
 
-        public void Update(PageAccount pageAccount)
-        {
-            var existingPageAccount = _context.PageAccounts.Find(pageAccount.Id);
-            if (existingPageAccount != null)
-            {
-                existingPageAccount.Name = pageAccount.Name;
-                existingPageAccount.PageId = pageAccount.PageId;
-                existingPageAccount.AccessToken = pageAccount.AccessToken;
-                existingPageAccount.CategoryId = pageAccount.CategoryId;
-                _context.SaveChanges();
-                _cache.Remove(CacheKey); // Invalidate cache
-            }
-        }
 
         public void Delete(int pageAccountId)
         {
