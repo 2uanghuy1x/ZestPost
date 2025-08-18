@@ -123,7 +123,7 @@ const PostArticle = () => {
                                 <option key={category.id} value={category.id}> 
                                     {category.name}
                                 </option>
-                            ))}\
+                            ))}
                         </select>
                         <input
                             type="text"

@@ -1,0 +1,95 @@
+.settings-container {
+    padding: 20px;
+}
+
+.settings-container h2 {
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.settings-container .setting-section {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.settings-container .setting-section h3 {
+    color: #555;
+    margin-top: 0;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+.settings-container .form-group {
+    margin-bottom: 15px;
+}
+
+.settings-container .form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #666;
+}
+
+.settings-container .form-group input[type="text"],
+.settings-container .form-group input[type="number"],
+.settings-container .form-group textarea,
+.settings-container .form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+.settings-container .button-group {
+    margin-top: 15px;
+}
+
+.settings-container .setting-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-right: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.settings-container .setting-button.primary {
+    background-color: #007bff;
+    color: white;
+}
+
+.settings-container .setting-button.primary:hover {
+    background-color: #0056b3;
+}
+
+.settings-container .setting-button.secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.settings-container .setting-button.secondary:hover {
+    background-color: #5a6268;
+}
+
+.settings-container .save-settings-button {
+    background-color: #28a745;
+    color: white;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 18px;
+    margin-top: 20px;
+    transition: background-color 0.3s ease;
+}
+
+.settings-container .save-settings-button:hover {
+    background-color: #218838;
+}

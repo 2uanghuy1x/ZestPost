@@ -1,58 +1,58 @@
 
 import React, { useState } from 'react';
-import AccountCrud from './mst/account/AccountCrud';
+import './App.css';
+import Sidebar from './Sidebar';
+import AccountList from './components/AccountManagement/AccountList';
 import CategoryCrud from './mst/category/CategoryCrud';
 import ArticleCrud from './mst/mst-article/ArticleCrud';
 import HistoryAccountCrud from './mst/history/HistoryAccountCrud';
-import AccountPageGroupManager from './mst/page/AccountPageGroupManager'; 
 import GroupAccountCrud from './mst/group/GroupAccountCrud';
+import AccountPageGroupManager from './mst/page/AccountPageGroupManager';
 import PostArticle from './action/post-article/PostArticle';
-import ScanAccounts from './action/scan/ScanAccounts'; // Keep this import
-import Sidebar from './Sidebar';
-import './App.css';
+import JoinGroup from './action/join-group/JoinGroup';
+import ScanAccounts from './action/scan/ScanAccounts';
+import Settings from './components/settings/Settings';
 
 function App() {
     const [currentView, setCurrentView] = useState('accounts');
 
-    const handleNavigation = (view) => {
+    const handleNavigate = (view) => {
+        console.log(`Navigating to: ${view}`); // Debugging line
         setCurrentView(view);
     };
 
-    let content;
-    switch (currentView) {
-        case 'accounts':
-            content = <AccountCrud />;
-            break;
-        case 'categories':
-            content = <CategoryCrud />;
-            break;
-        case 'articles':
-            content = <ArticleCrud />;
-            break;
-        case 'history':
-            content = <HistoryAccountCrud />;
-            break;
-        case 'pages': // This case now renders AccountPageGroupManager
-            content = <AccountPageGroupManager />;
-            break;
-        case 'groups':
-            content = <GroupAccountCrud />;
-            break;
-        case 'post-article':
-            content = <PostArticle />;
-            break;
-        case 'scan-accounts': // Add new case for ScanAccounts
-            content = <ScanAccounts />;
-            break;
-        default:
-            content = <AccountCrud />;
-    }
+    const renderContent = () => {
+        switch (currentView) {
+            case 'accounts':
+                return <AccountList />;
+            case 'categories':
+                return <CategoryCrud />;
+            case 'articles':
+                return <ArticleCrud />;
+            case 'history':
+                return <HistoryAccountCrud />;
+            case 'groups':
+                return <GroupAccountCrud />;
+            case 'pages':
+                return <AccountPageGroupManager />;
+            case 'post-article':
+                return <PostArticle />;
+            case 'join-group':
+                return <JoinGroup />;
+            case 'scan-accounts':
+                return <ScanAccounts />;
+            case 'settings':
+                return <Settings />;
+            default:
+                return <AccountList />;
+        }
+    };
 
     return (
-        <div className="app-container">
-            <Sidebar onNavigate={handleNavigation} currentView={currentView} />
-            <div className="main-app-content">
-                {content}
+        <div className="App">
+            <Sidebar onNavigate={handleNavigate} currentView={currentView} />
+            <div className="main-content">
+                {renderContent()}
             </div>
         </div>
     );

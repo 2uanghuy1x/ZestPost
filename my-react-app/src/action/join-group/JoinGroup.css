@@ -1,0 +1,60 @@
+.join-group-container {
+    padding: 20px;
+}
+
+.join-group-container h2 {
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.join-group-container .section {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.join-group-container .section h3 {
+    color: #555;
+    margin-top: 0;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+.join-group-container .form-group {
+    margin-bottom: 15px;
+}
+
+.join-group-container .form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #666;
+}
+
+.join-group-container .form-group textarea,
+.join-group-container .form-group input[type="number"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+.join-group-container .submit-button {
+    background-color: #28a745;
+    color: white;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 18px;
+    transition: background-color 0.3s ease;
+}
+
+.join-group-container .submit-button:hover {
+    background-color: #218838;
+}

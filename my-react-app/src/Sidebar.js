@@ -1,89 +1,51 @@
 
 import React from 'react';
 import './Sidebar.css';
+import Accordion from './components/Accordion/Accordion';
 
 const Sidebar = ({ onNavigate, currentView }) => {
+    // Helper function to create navigation links
+    const renderNavLink = (view, icon, text) => (
+        <li className="nav-item">
+            <a href="#" className={`nav-link ${currentView === view ? 'active' : ''}`} onClick={(e) => {
+                e.preventDefault(); // Prevent default anchor behavior
+                onNavigate(view);
+            }}>
+                <i className={`fas ${icon}`}></i>
+                <span className="nav-text">{text}</span>
+            </a>
+        </li>
+    );
+
     return (
         <div className="sidebar">
             <div className="sidebar-header">
-                ZestPost
+                <h1 className="logo">ZestPost</h1>
             </div>
-            <ul className="sidebar-nav">
-                <li className="nav-title">Quản lý</li>
-                <li className="nav-item">
-                    <a 
-                        href="#" 
-                        className={`nav-link ${currentView === 'accounts' ? 'active' : ''}`}
-                        onClick={() => onNavigate('accounts')}
-                    >
-                        <span className="nav-text">Tài khoản</span>
-                    </a>
-                </li>
-                <li className="nav-item">
-                    <a 
-                        href="#" 
-                        className={`nav-link ${currentView === 'categories' ? 'active' : ''}`}
-                        onClick={() => onNavigate('categories')}
-                    >
-                        <span className="nav-text">Danh mục</span>
-                    </a>
-                </li>
-                 <li className="nav-item">
-                    <a 
-                        href="#" 
-                        className={`nav-link ${currentView === 'articles' ? 'active' : ''}`}
-                        onClick={() => onNavigate('articles')}
-                    >
-                        <span className="nav-text">Nội dung bài viết</span>
-                    </a>
-                </li>
-                <li className="nav-item">
-                    <a 
-                        href="#" 
-                        className={`nav-link ${currentView === 'history' ? 'active' : ''}`}
-                        onClick={() => onNavigate('history')}
-                    >
-                        <span className="nav-text">Lịch sử tài khoản</span>
-                    </a>
-                </li>
-                <li className="nav-item">
-                    <a 
-                        href="#" 
-                        className={`nav-link ${currentView === 'pages' ? 'active' : ''}`}
-                        onClick={() => onNavigate('pages')}
-                    >
-                        <span className="nav-text">Tài khoản Trang</span>
-                    </a>
-                </li>
-                <li className="nav-item">
-                    <a 
-                        href="#" 
-                        className={`nav-link ${currentView === 'groups' ? 'active' : ''}`}
-                        onClick={() => onNavigate('groups')}
-                    >
-                        <span className="nav-text">Tài khoản Nhóm</span>
-                    </a>
-                </li>
-                <li className="nav-title">Tác vụ</li>
-                <li className="nav-item">
-                    <a 
-                        href="#" 
-                        className={`nav-link ${currentView === 'post-article' ? 'active' : ''}`}
-                        onClick={() => onNavigate('post-article')}
-                    >
-                        <span className="nav-text">Đăng bài</span>
-                    </a>
-                </li>
-                 <li className="nav-item">
-                    <a 
-                        href="#" 
-                        className={`nav-link ${currentView === 'scan-accounts' ? 'active' : ''}`}
-                        onClick={() => onNavigate('scan-accounts')}
-                    >
-                        <span className="nav-text">Quét Page/Group</span>
-                    </a>
-                </li>
+            <ul className="nav-menu">
+                <Accordion title="Quản lý">
+                    {renderNavLink('accounts', 'fa-users', 'Tài khoản')}
+                    {renderNavLink('categories', 'fa-tags', 'Danh mục')}
+                    {renderNavLink('articles', 'fa-newspaper', 'Nội dung bài viết')}
+                    {renderNavLink('history', 'fa-history', 'Lịch sử')}
+                    {renderNavLink('groups', 'fa-user-friends', 'Nhóm')}
+                    {renderNavLink('pages', 'fa-flag', 'Trang')}
+                </Accordion>
+                <Accordion title="Hành động">
+                    {renderNavLink('post-article', 'fa-file-alt', 'Đăng bài')}
+                    {renderNavLink('join-group', 'fa-users-cog', 'Xin vào nhóm')}
+                    {renderNavLink('scan-accounts', 'fa-search', 'Quét tài khoản')}
+                </Accordion>
             </ul>
+            <div className="sidebar-footer">
+                 <a href="#" className={`nav-link ${currentView === 'settings' ? 'active' : ''}`} onClick={(e) => {
+                    e.preventDefault();
+                    onNavigate('settings');
+                }}>
+                    <i className="fas fa-cog"></i>
+                    <span className="nav-text">Cài đặt</span>
+                </a>
+            </div>
         </div>
     );
 };
