@@ -1355,5 +1355,37 @@ namespace ZestPost.Base.Extension
                 return Result.Error(msg);
             }
         }
+        public static bool CheckPoint(this ChromeBrowser chromedriver)
+        {
+            string url = chromedriver.GetURL();
+            string node = null;
+            List<string> list_ = new List<string> { "facebook.com/checkpoint/828281030927956", "facebook.com/checkpoint/1501092823525282", "facebook.com/x/checkpoint/", "facebook.com/checkpoint/block" };
+            if (HelperCore.CheckStringContainKeyword(url, list_))
+            {
+                return true;
+            }
+
+            if (url.Contains("facebook.com/nt/screen/?params=") && url.Contains("checkpoint"))
+            {
+                return true;
+            }
+
+            list_ = new List<string>{
+            "verification_method", "submit[Yes]", "send_code", "/checkpoint/dyi", "https://www.facebook.com/communitystandards/", "help/121104481304395", "help/166863010078512", "help/117450615006715", "checkpoint/1501092823525282", "checkpoint/828281030927956",
+            "name=\"code_1\""};
+
+            if (HelperCore.CheckStringContainKeyword(url, list_))
+            {
+                return true;
+            }
+
+            list_ = new List<string> { "[name=\"verification_method\"]", "[name=\"submit[Yes]\"]", "[name=\"send_code\"]", "[href=\"https://www.facebook.com/communitystandards/\"]", "[name=\"code_1\"]", "[action=\"/login/checkpoint/\"] [name=\"contact_index\"]" };
+            node = chromedriver.GetElementExistFromList(4, 0.2, list_);
+            if (!string.IsNullOrEmpty(node))
+            {
+                return true;
+            }
+            return false;
+        }
     }
 }

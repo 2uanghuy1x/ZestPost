@@ -96,7 +96,6 @@ namespace ZestPost.Base.Helper
             catch { return string_1; }
             return string_1;
         }
-
         private static string spinText()
         {
             string text = randomText(rd.Next(3, 5));
@@ -123,7 +122,6 @@ namespace ZestPost.Base.Helper
             text10
             });
         }
-
         private static string randomText(int int_0)
         {
             char[] array = new char[int_0];
@@ -172,7 +170,6 @@ namespace ZestPost.Base.Helper
                 return string.Empty;
             }
         }
-
         public static string ReplaceUnsupportedIcons(string input)
         {
             StringBuilder result = new StringBuilder();
@@ -192,7 +189,6 @@ namespace ZestPost.Base.Helper
             catch (Exception ex) { Log4NetSyncController.LogException(ex, ""); }
             return input.ToString();
         }
-
         public static string RemoveFromIndex(string string_0, int int_0, int int_1)
         {
             try
@@ -206,7 +202,6 @@ namespace ZestPost.Base.Helper
                 return string.Empty;
             }
         }
-
         public static string getSubstringBetween(string input, string start, string end)
         {
             try
@@ -227,8 +222,6 @@ namespace ZestPost.Base.Helper
             catch (Exception ex) { Log4NetSyncController.LogException(ex, ""); }
             return string.Empty;
         }
-
-
         public static string CreateRandomStringNumber(int lengText, Random rd = null)
         {
             string text = "";
@@ -243,11 +236,24 @@ namespace ZestPost.Base.Helper
             }
             return text;
         }
-
         public static string RemoveSpecialCharacters(string input)
         {
             // Chỉ giữ lại các ký tự chữ và số
             return Regex.Replace(input, @"[^a-zA-Z0-9\s\u00C0-\u00FF\u0102-\u0103\u0110\u0111\u0128-\u0129\u0168-\u0169\u01A0-\u01A1\u01AF-\u01B0\u1EA0-\u1EF9]", "");
+        }
+        public static string CreateRandomString(int lengText, Random rd = null)
+        {
+            string text = "";
+            if (rd == null)
+            {
+                rd = new Random();
+            }
+            string text2 = "abcdefghijklmnopqrstuvwxyz";
+            for (int i = 0; i < lengText; i++)
+            {
+                text += text2[rd.Next(0, text2.Length)];
+            }
+            return text;
         }
     }
 }

@@ -632,5 +632,42 @@ namespace ZestPost.Base
             }
             return ((IJavaScriptExecutor)ChromeDriver).ExecuteAsyncScript(script, args);
         }
+        public void ScrollPageRandom(int distance, int num = 1, int timemin = 1, int timemax = 1)
+        {
+            if (IsOpenChrome())
+            {
+                try
+                {
+                    for (int i = 0; i < num; i++)
+                    {
+                        ChromeDriver.ExecuteScript("window.scrollBy({ top: " + distance + ",behavior: 'smooth'});");
+                        DelayTime(0.5);
+                    }
+                }
+                catch (Exception ex) { Log4NetSyncController.LogException(ex, ""); }
+            }
+        }
+        public void ScrollPage(string JSpath)
+        {
+            if (IsOpenChrome())
+                try
+                {
+                    ExecuteScript(JSpath + ".scrollIntoView({ behavior: 'smooth', block: 'center'});");
+                }
+                catch (Exception ex) { Log4NetSyncController.LogException(ex, ""); }
+        }
+        public void ScrollPage(int distance)
+        {
+            if (IsOpenChrome())
+            {
+                try
+                {
+                    ChromeDriver.ExecuteScript("window.scrollBy({ top: " + distance + ",behavior: 'smooth'});");
+                    DelayTime(1);
+                }
+                catch (Exception ex) { Log4NetSyncController.LogException(ex, ""); }
+            }
+        }
+
     }
 }

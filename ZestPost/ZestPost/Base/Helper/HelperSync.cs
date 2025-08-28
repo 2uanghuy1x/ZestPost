@@ -211,11 +211,12 @@ namespace ZestPost.Base.Helper
             // Trả về thời gian giữa startTime và endTime
             return endTime - startTime;
         }
-        public string FeedbackID(string postid)
+        public static string FeedbackID(string postid)
         {
             var plainTextBytes = System.Text.Encoding.UTF8.GetBytes("feedback:" + postid);
             return System.Convert.ToBase64String(plainTextBytes);
         }
+
         public static string Base64Decode(string base64Encoded)
         {
             try

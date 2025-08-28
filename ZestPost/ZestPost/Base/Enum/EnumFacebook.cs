@@ -7,4 +7,11 @@
         Posted = 2,
         Delete = 3
     }
+
+    public enum TypePost
+    {
+        Post = 0,
+        Story = 1,
+        Reel = 2
+    }
 }
