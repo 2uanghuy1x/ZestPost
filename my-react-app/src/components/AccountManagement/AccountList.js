@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './AccountList.css';
 import { csharpApi } from '../../api';
+import AddAccount from '../../mst/account/AddAccount'; // Correctly import AddAccount
 
 function AccountList() {
     const [accounts, setAccounts] = useState([]);
@@ -8,14 +9,14 @@ function AccountList() {
     const [categories, setCategories] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
-    const [selectedAccountIds, setSelectedAccountIds] = useState(new Set()); // New state for selected account IDs
+    const [selectedAccountIds, setSelectedAccountIds] = useState(new Set());
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false); // State for modal
 
     useEffect(() => {
         const handleMessage = (event) => {
             const message = event.data;
             if (message.action === 'accountsData') {
                 setAllAccounts(message.payload);
-                // After fetching new accounts, clear selection if previously selected accounts are no longer in the list
                 setSelectedAccountIds(prevSelected => {
                     const newSelected = new Set();
                     message.payload.forEach(account => {
@@ -44,47 +45,39 @@ function AccountList() {
 
     useEffect(() => {
         let filteredAccounts = allAccounts;
-
         if (selectedCategory) {
             filteredAccounts = filteredAccounts.filter(account => account.categoryId === selectedCategory);
         }
-
         if (searchTerm) {
             filteredAccounts = filteredAccounts.filter(account =>
                 account.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 account.uid.toLowerCase().includes(searchTerm.toLowerCase())
             );
         }
-
         setAccounts(filteredAccounts);
     }, [selectedCategory, searchTerm, allAccounts]);
 
-    const handleCategoryFilterChange = (e) => {
-        setSelectedCategory(e.target.value);
+    const handleSaveSuccess = () => {
+        setIsAddModalOpen(false);
+        csharpApi.getAccounts(); // Refresh accounts list
     };
 
-    const handleSearchTermChange = (e) => {
-        setSearchTerm(e.target.value);
-    };
+    const handleCategoryFilterChange = (e) => setSelectedCategory(e.target.value);
+    const handleSearchTermChange = (e) => setSearchTerm(e.target.value);
 
     const handleSelectAccount = (accountId) => {
         setSelectedAccountIds(prevSelected => {
             const newSelected = new Set(prevSelected);
-            if (newSelected.has(accountId)) {
-                newSelected.delete(accountId);
-            } else {
-                newSelected.add(accountId);
-            }
+            if (newSelected.has(accountId)) newSelected.delete(accountId);
+            else newSelected.add(accountId);
             return newSelected;
         });
     };
 
     const handleSelectAllAccounts = () => {
         if (selectedAccountIds.size === accounts.length && accounts.length > 0) {
-            // If all visible accounts are selected, deselect all
             setSelectedAccountIds(new Set());
         } else {
-            // Otherwise, select all visible accounts
             const allVisibleAccountIds = new Set(accounts.map(account => account.id));
             setSelectedAccountIds(allVisibleAccountIds);
         }
@@ -95,10 +88,7 @@ function AccountList() {
             alert('Vui lòng chọn ít nhất một tài khoản để bắt đầu.');
             return;
         }
-        const accountsToStart = Array.from(selectedAccountIds).map(id => accounts.find(acc => acc.id === id));
-        alert(`Bắt đầu các tài khoản đã chọn: ${accountsToStart.map(a => a.name).join(', ')}`);
-        // TODO: Call csharpApi.startAccounts(Array.from(selectedAccountIds));
-        // For now, let's just clear selection after action
+        // csharpApi.startAccounts(Array.from(selectedAccountIds));
         setSelectedAccountIds(new Set());
     };
 
@@ -107,10 +97,7 @@ function AccountList() {
             alert('Vui lòng chọn ít nhất một tài khoản để dừng.');
             return;
         }
-        const accountsToStop = Array.from(selectedAccountIds).map(id => accounts.find(acc => acc.id === id));
-        alert(`Dừng các tài khoản đã chọn: ${accountsToStop.map(a => a.name).join(', ')}`);
-        // TODO: Call csharpApi.stopAccounts(Array.from(selectedAccountIds));
-        // For now, let's just clear selection after action
+        // csharpApi.stopAccounts(Array.from(selectedAccountIds));
         setSelectedAccountIds(new Set());
     };
 
@@ -121,9 +108,23 @@ function AccountList() {
 
     return (
         <div className="crud-container">
+            {/* Add Account Modal */}
+            {isAddModalOpen && (
+                <div className="modal">
+                    <div className="modal-content-add">
+                        <AddAccount 
+                            onClose={() => setIsAddModalOpen(false)} 
+                            onSaveSuccess={handleSaveSuccess}
+                        />
+                    </div>
+                </div>
+            )}
+
             <div className="card">
                 <div className="card-header">
                     <h3>Danh sách Tài khoản</h3>
+                    {/* Add New Button */}
+                    <button className="add-new-btn" onClick={() => setIsAddModalOpen(true)}>+ Thêm mới</button>
                 </div>
                 <div className="filter-section">
                     <div className="filter-group">
@@ -171,7 +172,6 @@ function AccountList() {
                                         type="checkbox"
                                         onChange={handleSelectAllAccounts}
                                         checked={accounts.length > 0 && selectedAccountIds.size === accounts.length}
-                                        // Indeterminate state for checkbox if some but not all are selected
                                         ref={input => {
                                             if (input) {
                                                 input.indeterminate = selectedAccountIds.size > 0 && selectedAccountIds.size < accounts.length;

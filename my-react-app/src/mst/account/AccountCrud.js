@@ -1,37 +1,46 @@
 import React, { useState, useEffect } from 'react';
 import { csharpApi } from '../../api';
 import './AccountCrud.css';
-import '../category/CategoryCrud.css'; // Added this line to import CategoryCrud.css
+import '../category/CategoryCrud.css';
+import AddAccount from './AddAccount';
 
 function AccountCrud() {
     const [accounts, setAccounts] = useState([]);
-    const [allAccounts, setAllAccounts] = useState([]); // Store all accounts fetched
+    const [allAccounts, setAllAccounts] = useState([]);
     const [categories, setCategories] = useState([]);
-    const [selectedCategory, setSelectedCategory] = useState(''); // State for selected category filter
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedCategory, setSelectedCategory] = useState('');
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [isAddAccountOpen, setIsAddAccountOpen] = useState(false);
     const [currentAccount, setCurrentAccount] = useState(null);
+
+    const fetchAccounts = () => {
+        csharpApi.getAccounts();
+    };
+
+    const fetchCategories = () => {
+        csharpApi.getCategories();
+    };
 
     useEffect(() => {
         const handleMessage = (event) => {
             const message = event.data;
             if (message.action === 'accountsData') {
                 setAccounts(message.payload);
-                setAllAccounts(message.payload); // Store all accounts
+                setAllAccounts(message.payload);
             }
             if (message.action === 'categoriesData') {
                 setCategories(message.payload);
             }
             if (message.action === 'actionSuccess') {
-                setIsModalOpen(false);
+                setIsEditModalOpen(false);
                 setCurrentAccount(null);
-                // Re-fetch all accounts to update the list after a CRUD operation
-                csharpApi.getAccounts();
+                fetchAccounts(); 
             }
         };
 
         csharpApi.addEventListener('message', handleMessage);
-        csharpApi.getAccounts(); // Initial fetch
-        csharpApi.getCategories(); // Initial fetch for categories for the dropdown
+        fetchAccounts();
+        fetchCategories();
 
         return () => {
             csharpApi.removeEventListener('message', handleMessage);
@@ -40,7 +49,6 @@ function AccountCrud() {
     
     const accountCategories = categories.filter(c => c.type === 'account');
 
-    // Effect to filter accounts based on selectedCategory or display allAccounts
     useEffect(() => {
         if (selectedCategory) {
             const filtered = allAccounts.filter(account => account.categoryId === selectedCategory);
@@ -51,25 +59,12 @@ function AccountCrud() {
     }, [selectedCategory, allAccounts]);
 
     const handleAddNew = () => {
-        setCurrentAccount({
-            name: '',
-            uid: '',
-            password: '',
-            cookies: '',
-            email: '',
-            passmail: '',
-            phone: '',
-            mailrecovery: '',
-            privatekey: '',
-            avatar: '',
-            categoryId: '' // Initialize with empty string for no selection
-        });
-        setIsModalOpen(true);
+        setIsAddAccountOpen(true);
     };
 
     const handleEdit = (account) => {
         setCurrentAccount(account);
-        setIsModalOpen(true);
+        setIsEditModalOpen(true);
     };
 
     const handleDelete = (account) => {
@@ -82,13 +77,10 @@ function AccountCrud() {
         e.preventDefault();
         const accountToSave = {
             ...currentAccount,
-            // Ensure categoryId is correctly handled. If it's an empty string, set it to null
             categoryId: currentAccount.categoryId === '' ? null : currentAccount.categoryId
         };
         if (accountToSave.id) {
             csharpApi.updateAccount(accountToSave);
-        } else {
-            csharpApi.addAccount(accountToSave);
         }
     };
 
@@ -100,6 +92,11 @@ function AccountCrud() {
     const handleCategoryFilterChange = (e) => {
         setSelectedCategory(e.target.value);
     };
+    
+    const handleSaveSuccess = () => {
+        setIsAddAccountOpen(false);
+        fetchAccounts();
+    };
 
     const getCategoryName = (categoryId) => {
         const category = categories.find(c => c.id === categoryId);
@@ -108,10 +105,20 @@ function AccountCrud() {
 
     return (
         <div className="crud-container">
+             {isAddAccountOpen && (
+                <div className="modal">
+                    <div className="modal-content-add">
+                        <AddAccount 
+                            onClose={() => setIsAddAccountOpen(false)} 
+                            onSaveSuccess={handleSaveSuccess}
+                        />
+                    </div>
+                </div>
+            )}
             <div className="card">
                 <div className="card-header">
                     <h3>Quản lý Tài khoản</h3>
-                    <button className="add-new-btn" onClick={handleAddNew}>+ Thêm mới</button>
+                    <button className="add-new-btn" onClick={handleAddNew}>+ Thêm mới tài khoản</button>
                 </div>
                 <div className="filter-section">
                     <label htmlFor="categoryFilter">Lọc theo danh mục:</label>
@@ -157,12 +164,12 @@ function AccountCrud() {
                 </div>
             </div>
 
-            {isModalOpen && (
+            {isEditModalOpen && (
                 <div className="modal">
                     <div className="modal-content">
                         <div className="modal-header">
-                            <h2>{currentAccount && currentAccount.id ? 'Sửa tài khoản' : 'Thêm tài khoản'}</h2>
-                            <button className="close-btn" onClick={() => setIsModalOpen(false)}>&times;</button>
+                            <h2>Sửa tài khoản</h2>
+                            <button className="close-btn" onClick={() => setIsEditModalOpen(false)}>&times;</button>
                         </div>
                         <form onSubmit={handleSave}>
                             <div className="form-group">
@@ -227,7 +234,7 @@ function AccountCrud() {
 
                             <div className="form-actions">
                                 <button type="submit" className="action-btn save">Lưu</button>
-                                <button type="button" className="action-btn cancel" onClick={() => setIsModalOpen(false)}>Hủy</button>
+                                <button type="button" className="action-btn cancel" onClick={() => setIsEditModalOpen(false)}>Hủy</button>
                             </div>
                         </form>
                     </div>
