@@ -1,12 +1,10 @@
-using System.ComponentModel.DataAnnotations;
+using ZestPost.Base.Model;
 
 namespace ZestPost.DbService
 {
-    public class Article
+    public class Article : FullAuditedEntity
     {
-        [Key]
-        public Guid Id { get; set; }
-        public Guid CategoryId { get; set; }
+        public int CategoryId { get; set; }
         public string Title { get; set; }
         public string Content { get; set; }
         public string timepost { get; set; }

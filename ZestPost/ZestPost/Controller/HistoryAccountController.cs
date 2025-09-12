@@ -42,6 +42,8 @@ namespace ZestPost.Controller
             var historyAccount = _context.HistoryAccounts.Find(historyAccountId);
             if (historyAccount != null)
             {
+                historyAccount.DeletedAt = DateTime.UtcNow;
+                historyAccount.IsDelete = true;
                 _context.HistoryAccounts.Remove(historyAccount);
                 _context.SaveChanges();
                 _cache.Remove(CacheKey); // Invalidate cache

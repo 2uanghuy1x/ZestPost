@@ -13,7 +13,6 @@ namespace ZestPost.Controller
             _context = context;
             _cache = cache;
         }
-
         public List<AccountFB> GetAll()
         {
             var cachedAccounts = _cache.Get<List<AccountFB>>(CacheKey);
@@ -22,21 +21,20 @@ namespace ZestPost.Controller
                 return cachedAccounts;
             }
 
-            var accounts = _context.AccountFBs.ToList();
+            var accounts = _context.AccountFBs.Where(x => x.IsDelete == false).ToList();
             _cache.Set(CacheKey, accounts);
             return accounts;
         }
-
         public void Add(AccountFB account)
         {
             if (account != null)
             {
+                account.IsDelete = false;
                 _context.AccountFBs.Add(account);
                 _context.SaveChanges();
                 _cache.Remove(CacheKey); // Invalidate cache
             }
         }
-
         public void Update(AccountFB account)
         {
             var existingAccount = _context.AccountFBs.Find(account.Id);
@@ -58,7 +56,8 @@ namespace ZestPost.Controller
             var account = _context.AccountFBs.Find(accountId);
             if (account != null)
             {
-                _context.AccountFBs.Remove(account);
+                account.DeletedAt = DateTime.UtcNow;
+                account.IsDelete = true;
                 _context.SaveChanges();
                 _cache.Remove(CacheKey); // Invalidate cache
             }

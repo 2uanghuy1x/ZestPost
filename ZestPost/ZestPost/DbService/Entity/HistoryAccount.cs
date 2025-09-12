@@ -1,6 +1,8 @@
-﻿namespace ZestPost.DbService
+﻿using ZestPost.Base.Model;
+
+namespace ZestPost.DbService
 {
-    public class HistoryAccount
+    public class HistoryAccount : FullAuditedEntity
     {
         public Guid Id { get; set; }
         public string Uid { get; set; }

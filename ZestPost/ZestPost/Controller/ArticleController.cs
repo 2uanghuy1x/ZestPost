@@ -31,6 +31,7 @@ namespace ZestPost.Controller
         {
             if (article != null)
             {
+                article.IsDelete = false;
                 _context.Articles.Add(article);
                 _context.SaveChanges();
                 _cache.Remove(CacheKey); // Invalidate cache
@@ -54,7 +55,8 @@ namespace ZestPost.Controller
             var article = _context.Articles.Find(articleId);
             if (article != null)
             {
-                _context.Articles.Remove(article);
+                article.IsDelete = true;
+                article.DeletedAt = DateTime.UtcNow;
                 _context.SaveChanges();
                 _cache.Remove(CacheKey); // Invalidate cache
             }

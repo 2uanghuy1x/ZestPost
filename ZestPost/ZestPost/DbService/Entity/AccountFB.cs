@@ -1,12 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using ZestPost.Base.Model;
 
 namespace ZestPost.DbService
 {
-    public class AccountFB : IAccount, IAccountFacebook, IAccountMail
+    public class AccountFB : FullAuditedEntity, IAccount, IAccountFacebook, IAccountMail
     {
-        [Key]
-        public Guid Id { get; set; }
-        public Guid CategoryId { get; set; }
+        public int CategoryId { get; set; }
         public string? Privatekey { get; set; }
         public string? Token { get; set; }
         public string? Cookies { get; set; }

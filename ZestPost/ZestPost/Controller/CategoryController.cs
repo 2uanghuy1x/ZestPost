@@ -22,7 +22,7 @@ namespace ZestPost.Controller
                 return cachedCategories;
             }
 
-            var categories = _context.Categories.ToList();
+            var categories = _context.Categories.Where(x => x.IsDelete == false).ToList();
             _cache.Set(CacheKey, categories);
             return categories;
         }
@@ -31,6 +31,7 @@ namespace ZestPost.Controller
         {
             if (category != null)
             {
+                category.IsDelete = false;
                 _context.Categories.Add(category);
                 _context.SaveChanges();
                 _cache.Remove(CacheKey); // Invalidate cache
@@ -54,7 +55,8 @@ namespace ZestPost.Controller
             var category = _context.Categories.Find(categoryId);
             if (category != null)
             {
-                _context.Categories.Remove(category);
+                category.DeletedAt = DateTime.UtcNow;
+                category.IsDelete = true;
                 _context.SaveChanges();
                 _cache.Remove(CacheKey); // Invalidate cache
             }

@@ -1,6 +1,8 @@
-﻿namespace ZestPost.DbService
+﻿using ZestPost.Base.Model;
+
+namespace ZestPost.DbService
 {
-    public class PageAccount
+    public class PageAccount : FullAuditedEntity
     {
         public Guid Id { get; set; }
         public string Uid { get; set; }

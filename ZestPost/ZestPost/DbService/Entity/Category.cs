@@ -1,9 +1,10 @@
 ﻿
+using ZestPost.Base.Model;
+
 namespace ZestPost.DbService
 {
-    public class Category
+    public class Category : FullAuditedEntity
     {
-        public Guid Id { get; set; }
         public string? Name { get; set; }
         public string? Type { get; set; }
 

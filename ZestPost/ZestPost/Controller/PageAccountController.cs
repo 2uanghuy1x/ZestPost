@@ -31,18 +31,19 @@ namespace ZestPost.Controller
         {
             if (pageAccount != null)
             {
+                pageAccount.IsDelete = false;
                 _context.PageAccounts.Add(pageAccount);
                 _context.SaveChanges();
                 _cache.Remove(CacheKey); // Invalidate cache
             }
         }
-
-
         public void Delete(int pageAccountId)
         {
             var pageAccount = _context.PageAccounts.Find(pageAccountId);
             if (pageAccount != null)
             {
+                pageAccount.DeletedAt = DateTime.UtcNow;
+                pageAccount.IsDelete = true;
                 _context.PageAccounts.Remove(pageAccount);
                 _context.SaveChanges();
                 _cache.Remove(CacheKey); // Invalidate cache
