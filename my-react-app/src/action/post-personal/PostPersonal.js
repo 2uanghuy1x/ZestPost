@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './PostPersonal.css';
-import { csharpApi } from '../../api';
+import { csharpApi, fetchAccounts, fetchCategories } from '../../api';
 import ArticleManagement from '../../ArticleManagement'; // Import the ArticleManagement component
 
 const PostPersonal = () => {
@@ -8,6 +8,116 @@ const PostPersonal = () => {
     const [selectedArticles, setSelectedArticles] = useState([]);
     const [generalConfig, setGeneralConfig] = useState({});
     const [contentConfig, setContentConfig] = useState({});
+
+    // Account management states
+    const [accounts, setAccounts] = useState([]);
+    const [categories, setCategories] = useState([]);
+    const [selectedCategory, setSelectedCategory] = useState('');
+    const [selectedAccountIds, setSelectedAccountIds] = useState(new Set());
+
+    useEffect(() => {
+        loadCategories();
+        loadAccounts(); // Load accounts on initial render
+
+        const handleMessage = (event) => {
+            const message = event.data;
+            if (message.action === 'accountsData') {
+                setAccounts(message.payload);
+                setSelectedAccountIds(prevSelected => {
+                    const newSelected = new Set();
+                    message.payload.forEach(account => {
+                        if (prevSelected.has(account.id)) {
+                            newSelected.add(account.id);
+                        }
+                    });
+                    return newSelected;
+                });
+            }
+            if (message.action === 'categoriesData') {
+                setCategories(message.payload);
+            }
+        };
+
+        csharpApi.addEventListener('message', handleMessage);
+
+        return () => {
+            csharpApi.removeEventListener('message', handleMessage);
+        };
+    }, []);
+
+    const loadAccounts = async () => {
+        try {
+            const data = await fetchAccounts();
+            let filteredAccounts = data;
+            if (selectedCategory) {
+                filteredAccounts = data.filter(account => account.categoryId === selectedCategory);
+            }
+            setAccounts(filteredAccounts);
+        } catch (error) {
+            console.error('Error fetching accounts:', error);
+        }
+    };
+
+    const loadCategories = async () => {
+        try {
+            const data = await fetchCategories();
+            setCategories(data);
+        } catch (error) {
+            console.error('Error fetching categories:', error);
+        }
+    };
+
+    const handleLoadAccounts = () => {
+        loadAccounts();
+    };
+
+    const handleCategoryChange = (e) => {
+        setSelectedCategory(e.target.value);
+    };
+
+    useEffect(() => {
+        loadAccounts(); // Reload accounts when category changes
+    }, [selectedCategory]);
+
+    const handleSelectAccount = (accountId) => {
+        setSelectedAccountIds(prevSelected => {
+            const newSelected = new Set(prevSelected);
+            if (newSelected.has(accountId)) newSelected.delete(accountId);
+            else newSelected.add(accountId);
+            return newSelected;
+        });
+    };
+
+    const handleSelectAllAccounts = () => {
+        if (selectedAccountIds.size === accounts.length && accounts.length > 0) {
+            setSelectedAccountIds(new Set());
+        } else {
+            const allVisibleAccountIds = new Set(accounts.map(account => account.id));
+            setSelectedAccountIds(allVisibleAccountIds);
+        }
+    };
+
+    const handleStartSelected = () => {
+        if (selectedAccountIds.size === 0) {
+            alert('Vui lòng chọn ít nhất một tài khoản để bắt đầu.');
+            return;
+        }
+        csharpApi.startAccounts(Array.from(selectedAccountIds));
+        // Optionally, clear selection after starting
+        // setSelectedAccountIds(new Set());
+    };
+
+    const handleStopSelected = () => {
+        if (selectedAccountIds.size === 0) {
+            alert('Vui lòng chọn ít nhất một tài khoản để dừng.');
+            return;
+        }
+        csharpApi.stopAccounts(Array.from(selectedAccountIds));
+        // Optionally, clear selection after stopping
+        // setSelectedAccountIds(new Set());
+    };
+
+    const accountCategories = categories.filter(c => c.type === 'account');
 
     // Handler for opening the ArticleManagement modal
     const handleOpenArticleManagement = () => {
@@ -123,40 +233,69 @@ const PostPersonal = () => {
                 <fieldset className="panel-fieldset">
                     <legend className="panel-legend">DANH SÁCH TÀI KHOẢN</legend>
                     <div className="toolbar">
-                        <button className="icon-btn">🔄</button>
-                        <select className="category-select">
-                            <option>Chọn danh mục tài khoản</option>
+                        <button className="icon-btn" onClick={handleLoadAccounts}>🔄</button>
+                        <select
+                            className="category-select"
+                            value={selectedCategory}
+                            onChange={handleCategoryChange}
+                        >
+                            <option value="">Chọn danh mục tài khoản</option>
+                            {accountCategories.map(category => (
+                                <option key={category.id} value={category.id}>{category.name}</option>
+                            ))}
                         </select>
-                        <button className="btn btn-load">LOAD</button>
+                        <button className="btn btn-load" onClick={handleLoadAccounts}>LOAD</button>
                         <div className="spacer"></div>
-                        <button className="btn btn-start">START</button>
-                        <button className="btn btn-stop">STOP</button>
+                        <button className="btn btn-start" onClick={handleStartSelected}>START</button>
+                        <button className="btn btn-stop" onClick={handleStopSelected}>STOP</button>
                     </div>
 
                     <div className="table-wrapper">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th><input type="checkbox" /></th>
-                                    <th>STT</th>
-                                    <th>UID</th>
-                                    <th>Trạng thái</th>
-                                    <th>Thành công</th>
-                                    <th>Tình trạng</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {/* Example row */}
-                                <tr>
-                                    <td><input type="checkbox" /></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        {accounts.length > 0 ? (
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            <input
+                                                type="checkbox"
+                                                onChange={handleSelectAllAccounts}
+                                                checked={accounts.length > 0 && selectedAccountIds.size === accounts.length}
+                                                ref={input => {
+                                                    if (input) {
+                                                        input.indeterminate = selectedAccountIds.size > 0 && selectedAccountIds.size < accounts.length;
+                                                    }
+                                                }}
+                                            />
+                                        </th>
+                                        <th>STT</th>
+                                        <th>UID</th>
+                                        <th>Trạng thái</th>
+                                        <th>Thành công</th>
+                                        <th>Tình trạng</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {accounts.map((account, index) => (
+                                        <tr key={account.id}>
+                                            <td>
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedAccountIds.has(account.id)}
+                                                    onChange={() => handleSelectAccount(account.id)}
+                                                />
+                                            </td>
+                                            <td>{index + 1}</td>
+                                            <td>{account.uid}</td>
+                                            <td>{account.status}</td>
+                                            <td>{account.successCount}</td>
+                                            <td>{account.message}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        ) : (
+                            <p>Không có tài khoản nào để hiển thị.</p>
+                        )}
                     </div>
                 </fieldset>
             </div>

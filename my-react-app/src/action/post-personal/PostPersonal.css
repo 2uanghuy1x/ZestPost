@@ -198,11 +198,18 @@ input:checked + .slider:before {
     cursor: pointer;
 }
 
-.category-select {
-    flex-grow: 1;
+.account-panel .toolbar .category-select {
+    /* Remove flex-grow to prevent it from expanding too much */
+    /* flex-grow: 1; */
+    width: 250px; /* A fixed width to match the image better */
     padding: 8px;
     border: 1px solid #ccc;
     border-radius: 3px;
+    font-size: 1rem;
+    color: #333;
+    background-color: #fff;
+    /* Use default browser arrow */
+    appearance: menulist-button; /* Restore default system dropdown arrow */
 }
 
 .btn-load {
