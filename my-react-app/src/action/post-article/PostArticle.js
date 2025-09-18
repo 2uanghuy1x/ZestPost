@@ -162,7 +162,7 @@ const PostArticle = () => {
                                         <td>{account.name}</td>
                                         <td>{account.uid}</td> 
                                     </tr>
-                                ))}\
+                                ))}
                             </tbody>
                         </table>
                     </div>

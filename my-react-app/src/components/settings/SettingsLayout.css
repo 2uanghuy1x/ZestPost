@@ -1,0 +1,32 @@
+.settings-two-column-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Two equal columns */
+    gap: 30px; /* Space between columns */
+    padding: 20px 0;
+}
+
+/* Adjustments for form groups within columns */
+.settings-two-column-layout .form-group {
+    margin-bottom: 15px;
+}
+
+.settings-two-column-layout .button-group {
+    grid-column: span 2; /* Make button group span both columns */
+    display: flex;
+    justify-content: flex-end; /* Align buttons to the right */
+    gap: 15px;
+    margin-top: 20px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .settings-two-column-layout {
+        grid-template-columns: 1fr; /* Stack columns on smaller screens */
+        gap: 20px;
+    }
+
+    .settings-two-column-layout .button-group {
+        grid-column: span 1;
+        justify-content: center; /* Center buttons on smaller screens */
+    }
+}

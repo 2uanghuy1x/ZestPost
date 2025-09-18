@@ -1,4 +1,3 @@
-
 .sidebar {
     width: 250px;
     background-color: #2c3e50;
@@ -6,18 +5,24 @@
     display: flex;
     flex-direction: column;
     height: 100vh;
-    transition: width 0.3s ease;
+    transition: width 0.3s ease, background-color 0.3s ease;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.2);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .sidebar-header {
     padding: 20px;
     text-align: center;
     border-bottom: 1px solid #34495e;
+    background-color: #243447;
 }
 
 .logo {
     margin: 0;
-    font-size: 1.5rem;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #e0f2f7; /* Lighter shade for logo */
+    letter-spacing: 1px;
 }
 
 .nav-menu {
@@ -25,6 +30,7 @@
     padding: 0;
     margin: 0;
     flex-grow: 1;
+    overflow-y: auto; /* Enable scrolling for many items */
 }
 
 .nav-item {
@@ -32,26 +38,112 @@
 }
 
 .nav-link {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    font-family: inherit;
+    font-size: 1em;
+    text-align: left;
     display: flex;
     align-items: center;
     padding: 15px 20px;
     color: #ecf0f1;
     text-decoration: none;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+    position: relative; /* For the active indicator */
 }
 
-.nav-link:hover,
+.nav-link:hover {
+    background-color: #3f5b78; /* Slightly lighter on hover */
+    color: #ffffff;
+    transform: translateX(5px); /* Subtle slide effect */
+}
+
 .nav-link.active {
-    background-color: #34495e;
+    background-color: #007bff; /* A distinct active color */
+    color: #ffffff;
+    font-weight: 600;
+    border-left: 5px solid #28a745; /* Green active indicator */
+    padding-left: 15px; /* Adjust padding due to border */
 }
 
-.nav-link i {
+.nav-link.active .nav-text {
+    color: #ffffff;
+}
+
+.nav-link svg, .nav-link i {
     margin-right: 15px;
     width: 20px;
+    height: 20px;
     text-align: center;
+    font-size: 1.1em; /* Adjust icon size */
+    color: #9cb3c9; /* Lighter icon color */
+    transition: color 0.3s ease;
+}
+
+.nav-link:hover svg, .nav-link:hover i,
+.nav-link.active svg, .nav-link.active i {
+    color: #ffffff; /* White icon on hover/active */
+}
+
+.nav-text {
+    flex-grow: 1;
+    transition: color 0.3s ease;
 }
 
 .sidebar-footer {
-    padding: 20px;
+    padding: 15px 20px;
     border-top: 1px solid #34495e;
+    background-color: #243447;
+    text-align: center;
 }
+
+.sidebar .accordion-item {
+    background-color: #2c3e50; /* Match sidebar background */
+    border: none;
+    margin-bottom: 0;
+    border-radius: 0;
+}
+
+.sidebar .accordion-title {
+    background-color: #34495e; /* Darker background for accordion headers */
+    color: #ecf0f1;
+    font-size: 1.1em;
+    padding: 15px 20px;
+    border-bottom: 1px solid #3d5166;
+}
+
+.sidebar .accordion-title:hover {
+    background-color: #3f5b78;
+}
+
+.sidebar .accordion-icon {
+    color: #ecf0f1;
+}
+
+.sidebar .accordion-content {
+    background-color: #2c3e50; /* Match sidebar background */
+    padding: 0;
+    border-top: none;
+}
+
+.sidebar .accordion-item.active .accordion-content {
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.sidebar .accordion-content .nav-item .nav-link {
+    padding-left: 40px; /* Indent sub-items */
+    font-size: 0.95em;
+}
+
+.sidebar .accordion-content .nav-item .nav-link:hover {
+    background-color: #3f5b78;
+}
+
+.sidebar .accordion-content .nav-item .nav-link.active {
+    border-left: 5px solid #28a745; /* Green active indicator for sub-items */
+    padding-left: 35px; /* Adjust padding due to border */
+}
+

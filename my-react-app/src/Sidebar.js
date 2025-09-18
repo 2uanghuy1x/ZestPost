@@ -7,13 +7,10 @@ const Sidebar = ({ onNavigate, currentView }) => {
     // Helper function to create navigation links
     const renderNavLink = (view, icon, text) => (
         <li className="nav-item">
-            <a href="#" className={`nav-link ${currentView === view ? 'active' : ''}`} onClick={(e) => {
-                e.preventDefault(); // Prevent default anchor behavior
-                onNavigate(view);
-            }}>
+            <button className={`nav-link ${currentView === view ? 'active' : ''}`} onClick={() => onNavigate(view)}>
                 <i className={`fas ${icon}`}></i>
                 <span className="nav-text">{text}</span>
-            </a>
+            </button>
         </li>
     );
 
@@ -33,18 +30,18 @@ const Sidebar = ({ onNavigate, currentView }) => {
                 </Accordion>
                 <Accordion title="Hành động">
                     {renderNavLink('post-article', 'fa-file-alt', 'Đăng bài')}
+                    {renderNavLink('post-personal', 'fa-file-alt', 'Đăng bài cá nhân')}
+                    {renderNavLink('post-article-group-page', 'fa-file-alt', 'Đăng bài nhóm Page')}
+                    {renderNavLink('post-article-group-regular', 'fa-file-alt', 'Đăng bài nhóm')}
                     {renderNavLink('join-group', 'fa-users-cog', 'Xin vào nhóm')}
                     {renderNavLink('scan-accounts', 'fa-search', 'Quét tài khoản')}
                 </Accordion>
             </ul>
             <div className="sidebar-footer">
-                 <a href="#" className={`nav-link ${currentView === 'settings' ? 'active' : ''}`} onClick={(e) => {
-                    e.preventDefault();
-                    onNavigate('settings');
-                }}>
+                 <button className={`nav-link ${currentView === 'settings' ? 'active' : ''}`} onClick={() => onNavigate('settings')}>
                     <i className="fas fa-cog"></i>
                     <span className="nav-text">Cài đặt</span>
-                </a>
+                </button>
             </div>
         </div>
     );

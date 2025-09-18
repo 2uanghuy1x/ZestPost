@@ -1,4 +1,6 @@
 .add-account-container {
+    width: 95vw;
+    height: 95vh;
     padding: 20px;
     background-color: #f9f9f9;
     border-radius: 8px;
@@ -6,6 +8,11 @@
     display: flex;
     flex-direction: column;
     gap: 20px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
 }
 
 .add-account-header {
@@ -33,15 +40,22 @@
     color: #333;
 }
 
+.input-area {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 150px;
+}
+
 .input-area textarea {
     width: 100%;
-    min-height: 120px;
+    flex-grow: 1;
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
     font-family: Arial, sans-serif;
     font-size: 14px;
-    resize: vertical;
+    resize: none;
 }
 
 .controls-section {
@@ -144,8 +158,10 @@
 }
 
 .preview-table-container {
+    flex-grow: 1; /* Allow the table to fill available space */
+    overflow: auto; /* Add scrollbars if content overflows */
+    min-height: 0; /* Prevent flexbox overflow issues */
     width: 100%;
-    overflow-x: auto;
     border: 1px solid #ddd;
     border-radius: 4px;
     background-color: white;

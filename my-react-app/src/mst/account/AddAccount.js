@@ -87,16 +87,26 @@ function AddAccount({ onClose, onSaveSuccess }) {
             return;
         }
 
-        // Using a loop to add accounts one by one
-        parsedAccounts.forEach(account => {
-            // Ensure categoryId is set
-            account.categoryId = selectedCategory === '' ? null : selectedCategory;
-            csharpApi.addAccount(account);
+        const accountsToSave = parsedAccounts.map(acc => ({
+            Name: acc.name,
+            Uid: acc.uid,
+            Password: acc.password,
+            Cookies: acc.cookies,
+            Email: acc.email,
+            Passmail: acc.passmail,
+            Phone: acc.phone,
+            Mailrecovery: acc.mailrecovery,
+            PrivateKey: acc.privatekey,
+            Avatar: acc.avatar,
+            CategoryId: selectedCategory === '' ? null : selectedCategory,
+        }));
+
+        accountsToSave.forEach(accountPayload => {
+            csharpApi.addAccount(accountPayload);
         });
 
-        // Assuming success, but in a real app you'd wait for confirmation
         alert(`${parsedAccounts.length} tài khoản đã được thêm thành công.`);
-        onSaveSuccess(); // This will trigger a refetch in the parent and close this component
+        onSaveSuccess();
     };
     
     const handleClear = () => {
@@ -155,7 +165,7 @@ function AddAccount({ onClose, onSaveSuccess }) {
                 <div className="format-info">
                     <label>Định dạng nhập</label>
                     <input type="text" value={selectedFormat} readOnly />
-                    <a href="#" className="format-link">Xem hướng dẫn tại đây ...</a>
+                    {/* <a href="#" className="format-link">Xem hướng dẫn tại đây ...</a> */}
                 </div>
                 <div className="action-buttons">
                     <button className="btn btn-new" onClick={handleClear}>Làm mới</button>
@@ -169,14 +179,11 @@ function AddAccount({ onClose, onSaveSuccess }) {
                     <thead>
                         <tr>
                             <th>STT</th>
-                            <th>Tên người dùng</th>
+                            <th>Tên / UID</th>
                             <th>Mật khẩu</th>
+                            <th>UID</th>
                             <th>Private Key</th>
-                            <th>Cookies</th>
-                            <th>UID Facebook</th>
-                            <th>Mật khẩu</th>
-                            <th>Private Key</th>
-                            <th>Cookies</th>
+                            <th>Cookie</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -189,10 +196,7 @@ function AddAccount({ onClose, onSaveSuccess }) {
                                 <td>{index + 1}</td>
                                 <td>{acc.name}</td>
                                 <td>{acc.password}</td>
-                                <td>{acc.privatekey}</td>
-                                <td>{acc.cookies}</td>
                                 <td>{acc.uid}</td>
-                                <td>{acc.password}</td>
                                 <td>{acc.privatekey}</td>
                                 <td>{acc.cookies}</td>
                             </tr>

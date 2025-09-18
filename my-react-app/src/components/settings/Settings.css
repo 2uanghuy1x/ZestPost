@@ -1,95 +1,210 @@
 .settings-container {
     padding: 20px;
-}
-
-.settings-container h2 {
-    color: #333;
-    margin-bottom: 20px;
-}
-
-.settings-container .setting-section {
-    background-color: #f9f9f9;
+    max-width: 800px;
+    margin: 20px auto;
+    background-color: #f8f9fa;
     border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    font-family: 'Arial', sans-serif;
+}
+
+h2 {
+    color: #212529;
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 2.2em;
+    font-weight: 600;
+}
+
+.accordion-item {
+    background-color: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    overflow: hidden;
+    transition: all 0.3s ease-in-out;
+}
+
+.accordion-item.active {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.accordion-title {
+    background-color: #e9ecef;
+    padding: 15px 20px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.1em;
+    font-weight: 500;
+    color: #343a40;
+    border-bottom: 1px solid #dee2e6;
+    transition: background-color 0.2s ease;
+}
+
+.accordion-title:hover {
+    background-color: #e2e6ea;
+}
+
+.accordion-title.active {
+    background-color: #d6dbdf;
+}
+
+.accordion-icon {
+    font-size: 1.2em;
+    transition: transform 0.3s ease;
+}
+
+.accordion-title.active .accordion-icon {
+    transform: rotate(90deg);
+}
+
+.accordion-content {
     padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-top: 1px solid #e9ecef;
+    background-color: #fdfdfd;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease-out, padding 0.4s ease-out;
 }
 
-.settings-container .setting-section h3 {
-    color: #555;
-    margin-top: 0;
-    margin-bottom: 15px;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 10px;
+.accordion-content.active {
+    max-height: 500px; /* Adjust based on expected content height */
+    padding-top: 20px;
+    padding-bottom: 20px;
 }
 
-.settings-container .form-group {
-    margin-bottom: 15px;
+.form-group {
+    margin-bottom: 18px;
 }
 
-.settings-container .form-group label {
+.form-group label {
     display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-    color: #666;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #495057;
+    font-size: 0.95em;
 }
 
-.settings-container .form-group input[type="text"],
-.settings-container .form-group input[type="number"],
-.settings-container .form-group textarea,
-.settings-container .form-group select {
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group textarea,
+.form-group select {
     width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
+    padding: 10px 12px;
+    border: 1px solid #ced4da;
     border-radius: 4px;
-    font-size: 16px;
-    box-sizing: border-box;
+    font-size: 1em;
+    color: #495057;
+    background-color: #fff;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.settings-container .button-group {
-    margin-top: 15px;
+.form-group input[type="text"]:focus,
+.form-group input[type="number"]:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
 
-.settings-container .setting-button {
+.form-group textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.button-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.setting-button {
     padding: 10px 20px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    font-size: 16px;
-    margin-right: 10px;
-    transition: background-color 0.3s ease;
+    font-size: 1em;
+    font-weight: 500;
+    transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
-.settings-container .setting-button.primary {
+.setting-button.primary {
     background-color: #007bff;
     color: white;
 }
 
-.settings-container .setting-button.primary:hover {
+.setting-button.primary:hover {
     background-color: #0056b3;
+    transform: translateY(-1px);
 }
 
-.settings-container .setting-button.secondary {
+.setting-button.secondary {
     background-color: #6c757d;
     color: white;
 }
 
-.settings-container .setting-button.secondary:hover {
+.setting-button.secondary:hover {
     background-color: #5a6268;
+    transform: translateY(-1px);
 }
 
-.settings-container .save-settings-button {
+.save-settings-button {
+    display: block;
+    width: 100%;
+    padding: 12px 25px;
+    margin-top: 30px;
     background-color: #28a745;
     color: white;
-    padding: 12px 25px;
     border: none;
     border-radius: 5px;
+    font-size: 1.1em;
+    font-weight: 600;
     cursor: pointer;
-    font-size: 18px;
-    margin-top: 20px;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
-.settings-container .save-settings-button:hover {
+.save-settings-button:hover {
     background-color: #218838;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Accordion Specific Styles */
+.accordion-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background-color: #e9ecef;
+    border-bottom: 1px solid #dee2e6;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.accordion-header:hover {
+    background-color: #e2e6ea;
+}
+
+.accordion-header h3 {
+    margin: 0;
+    font-size: 1.1em;
+    color: #343a40;
+}
+
+.accordion-header .arrow-icon {
+    font-size: 1.2em;
+    transition: transform 0.3s ease;
+}
+
+.accordion-header.active .arrow-icon {
+    transform: rotate(90deg);
+}
+
+.accordion-body {
+    padding: 20px;
+    background-color: #fdfdfd;
+    border-top: 1px solid #e9ecef;
 }

@@ -58,3 +58,32 @@ export const csharpApi = {
         }
     }
 };
+
+// Export specific functions for ArticleManagement component
+export const fetchArticles = async () => {
+    return new Promise((resolve) => {
+        const handler = (event) => {
+            const message = event.data;
+            if (message.action === 'articlesData') {
+                resolve(message.payload);
+                csharpApi.removeEventListener('message', handler);
+            }
+        };
+        csharpApi.addEventListener('message', handler);
+        csharpApi.getArticles();
+    });
+};
+
+export const fetchCategories = async () => {
+    return new Promise((resolve) => {
+        const handler = (event) => {
+            const message = event.data;
+            if (message.action === 'categoriesData') {
+                resolve(message.payload);
+                csharpApi.removeEventListener('message', handler);
+            }
+        };
+        csharpApi.addEventListener('message', handler);
+        csharpApi.getCategories();
+    });
+};

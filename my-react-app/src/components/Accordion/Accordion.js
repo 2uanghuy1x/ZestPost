@@ -1,18 +1,29 @@
-
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import './Accordion.css';
 
 const Accordion = ({ title, children }) => {
     const [isOpen, setIsOpen] = useState(false);
+    const contentRef = useRef(null);
+
+    useEffect(() => {
+        if (contentRef.current) {
+            contentRef.current.style.maxHeight = isOpen ? `${contentRef.current.scrollHeight}px` : '0px';
+        }
+    }, [isOpen]);
 
     return (
-        <li className={`accordion-item ${isOpen ? 'open' : ''}`}>
-            <div className="accordion-header" onClick={() => setIsOpen(!isOpen)}>
-                <span className="accordion-title">{title}</span>
-                <i className={`fas fa-chevron-down submenu-arrow`}></i>
+        <div className={`accordion-item ${isOpen ? 'active' : ''}`}>
+            <div className="accordion-title" onClick={() => setIsOpen(!isOpen)}>
+                <span>{title}</span>
+                <span className="accordion-icon">{isOpen ? '▲' : '▼'}</span>
             </div>
-            {isOpen && <ul className="submenu">{children}</ul>}
-        </li>
+            <div
+                ref={contentRef}
+                className="accordion-content"
+            >
+                {children}
+            </div>
+        </div>
     );
 };
 

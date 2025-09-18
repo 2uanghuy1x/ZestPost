@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import './App.css';
 import Sidebar from './Sidebar';
@@ -9,9 +8,13 @@ import HistoryAccountCrud from './mst/history/HistoryAccountCrud';
 import GroupAccountCrud from './mst/group/GroupAccountCrud';
 import AccountPageGroupManager from './mst/page/AccountPageGroupManager';
 import PostArticle from './action/post-article/PostArticle';
+import PostPersonal from './action/post-personal/PostPersonal';
+import PostArticleGroupPage from './action/post-article-group-page/PostArticleGroupPage';
+import PostArticleGroupRegular from './action/post-article-group-regular/PostArticleGroupRegular';
 import JoinGroup from './action/join-group/JoinGroup';
 import ScanAccounts from './action/scan/ScanAccounts';
 import Settings from './components/settings/Settings';
+import ArticleManagement from './ArticleManagement'; // Import the new component
 
 function App() {
     const [currentView, setCurrentView] = useState('accounts');
@@ -37,12 +40,20 @@ function App() {
                 return <AccountPageGroupManager />;
             case 'post-article':
                 return <PostArticle />;
+            case 'post-personal':
+                return <PostPersonal />;
+            case 'post-article-group-page':
+                return <PostArticleGroupPage />;
+            case 'post-article-group-regular':
+                return <PostArticleGroupRegular />;
             case 'join-group':
                 return <JoinGroup />;
             case 'scan-accounts':
                 return <ScanAccounts />;
             case 'settings':
                 return <Settings />;
+            case 'article-management': // New case for ArticleManagement
+                return <ArticleManagement />;
             default:
                 return <AccountList />;
         }
