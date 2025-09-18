@@ -14,6 +14,8 @@ export const csharpApi = {
     addAccount: (account) => post({ action: 'mstAddAccount', payload: account }),
     updateAccount: (account) => post({ action: 'mstUpdateAccount', payload: account }),
     deleteAccount: (account) => post({ action: 'mstDeleteAccount', payload: account }),
+    startAccounts: (accountIds) => post({ action: 'mstStartAccounts', payload: accountIds }),
+    stopAccounts: (accountIds) => post({ action: 'mstStopAccounts', payload: accountIds }),
 
     // Category Actions
     getCategories: () => post({ action: 'mstGetCategories' }),
@@ -87,3 +89,18 @@ export const fetchCategories = async () => {
         csharpApi.getCategories();
     });
 };
+
+export const fetchAccounts = async () => {
+    return new Promise((resolve) => {
+        const handler = (event) => {
+            const message = event.data;
+            if (message.action === 'accountsData') {
+                resolve(message.payload);
+                csharpApi.removeEventListener('message', handler);
+            }
+        };
+        csharpApi.addEventListener('message', handler);
+        csharpApi.getAccounts();
+    });
+};
+

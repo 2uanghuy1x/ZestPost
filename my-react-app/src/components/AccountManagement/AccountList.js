@@ -1,22 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import './AccountList.css';
-import { csharpApi } from '../../api';
-import AddAccount from '../../mst/account/AddAccount'; // Correctly import AddAccount
+import { csharpApi, fetchAccounts, fetchCategories } from '../../api';
 
 function AccountList() {
     const [accounts, setAccounts] = useState([]);
-    const [allAccounts, setAllAccounts] = useState([]); // Store all accounts fetched
     const [categories, setCategories] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState('');
-    const [searchTerm, setSearchTerm] = useState('');
     const [selectedAccountIds, setSelectedAccountIds] = useState(new Set());
-    const [isAddModalOpen, setIsAddModalOpen] = useState(false); // State for modal
 
     useEffect(() => {
+        loadCategories();
+        loadAccounts(); // Load accounts on initial render
+
         const handleMessage = (event) => {
             const message = event.data;
             if (message.action === 'accountsData') {
-                setAllAccounts(message.payload);
+                setAccounts(message.payload);
                 setSelectedAccountIds(prevSelected => {
                     const newSelected = new Set();
                     message.payload.forEach(account => {
@@ -33,37 +32,45 @@ function AccountList() {
         };
 
         csharpApi.addEventListener('message', handleMessage);
-        csharpApi.getAccounts(); // Initial fetch
-        csharpApi.getCategories();
 
         return () => {
             csharpApi.removeEventListener('message', handleMessage);
         };
     }, []);
-    
-    const accountCategories = categories.filter(c => c.type === 'account');
 
-    useEffect(() => {
-        let filteredAccounts = allAccounts;
-        if (selectedCategory) {
-            filteredAccounts = filteredAccounts.filter(account => account.categoryId === selectedCategory);
+    const loadAccounts = async () => {
+        try {
+            const data = await fetchAccounts();
+            let filteredAccounts = data;
+            if (selectedCategory) {
+                filteredAccounts = data.filter(account => account.categoryId === selectedCategory);
+            }
+            setAccounts(filteredAccounts);
+        } catch (error) {
+            console.error('Error fetching accounts:', error);
         }
-        if (searchTerm) {
-            filteredAccounts = filteredAccounts.filter(account =>
-                account.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                account.uid.toLowerCase().includes(searchTerm.toLowerCase())
-            );
-        }
-        setAccounts(filteredAccounts);
-    }, [selectedCategory, searchTerm, allAccounts]);
-
-    const handleSaveSuccess = () => {
-        setIsAddModalOpen(false);
-        csharpApi.getAccounts(); // Refresh accounts list
     };
 
-    const handleCategoryFilterChange = (e) => setSelectedCategory(e.target.value);
-    const handleSearchTermChange = (e) => setSearchTerm(e.target.value);
+    const loadCategories = async () => {
+        try {
+            const data = await fetchCategories();
+            setCategories(data);
+        } catch (error) {
+            console.error('Error fetching categories:', error);
+        }
+    };
+
+    const handleLoadAccounts = () => {
+        loadAccounts();
+    };
+
+    const handleCategoryChange = (e) => {
+        setSelectedCategory(e.target.value);
+    };
+
+    useEffect(() => {
+        loadAccounts(); // Reload accounts when category changes
+    }, [selectedCategory]);
 
     const handleSelectAccount = (accountId) => {
         setSelectedAccountIds(prevSelected => {
@@ -88,8 +95,9 @@ function AccountList() {
             alert('Vui lòng chọn ít nhất một tài khoản để bắt đầu.');
             return;
         }
-        // csharpApi.startAccounts(Array.from(selectedAccountIds));
-        setSelectedAccountIds(new Set());
+        csharpApi.startAccounts(Array.from(selectedAccountIds));
+        // Optionally, clear selection after starting
+        // setSelectedAccountIds(new Set());
     };
 
     const handleStopSelected = () => {
@@ -97,74 +105,38 @@ function AccountList() {
             alert('Vui lòng chọn ít nhất một tài khoản để dừng.');
             return;
         }
-        // csharpApi.stopAccounts(Array.from(selectedAccountIds));
-        setSelectedAccountIds(new Set());
+        csharpApi.stopAccounts(Array.from(selectedAccountIds));
+        // Optionally, clear selection after stopping
+        // setSelectedAccountIds(new Set());
     };
 
-    const getCategoryName = (categoryId) => {
-        const category = categories.find(c => c.id === categoryId);
-        return category ? category.name : 'N/A';
-    };
+    const accountCategories = categories.filter(c => c.type === 'account');
 
     return (
-        <div className="crud-container">
-            {/* Add Account Modal */}
-            {isAddModalOpen && (
-                <div className="modal">
-                    <div className="modal-content-add">
-                        <AddAccount 
-                            onClose={() => setIsAddModalOpen(false)} 
-                            onSaveSuccess={handleSaveSuccess}
-                        />
-                    </div>
-                </div>
-            )}
+        <div className="account-management-container">
+            <h2 className="header-title">DANH SÁCH TÀI KHOẢN</h2>
 
-            <div className="card">
-                <div className="card-header">
-                    <h3>Danh sách Tài khoản</h3>
-                    {/* Add New Button */}
-                    <button className="add-new-btn" onClick={() => setIsAddModalOpen(true)}>+ Thêm mới</button>
+            <div className="controls-row">
+                <div className="category-select-wrapper">
+                    <select
+                        value={selectedCategory}
+                        onChange={handleCategoryChange}
+                        className="category-select"
+                    >
+                        <option value="">Chọn danh mục tài khoản</option>
+                        {accountCategories.map(category => (
+                            <option key={category.id} value={category.id}>{category.name}</option>
+                        ))}
+                    </select>
                 </div>
-                <div className="filter-section">
-                    <div className="filter-group">
-                        <label htmlFor="categoryFilter">Lọc theo danh mục:</label>
-                        <select id="categoryFilter" value={selectedCategory} onChange={handleCategoryFilterChange}>
-                            <option value="">Tất cả danh mục</option>
-                            {accountCategories.map(category => (
-                                <option key={category.id} value={category.id}>{category.name}</option>
-                            ))}
-                        </select>
-                    </div>
-                    <div className="filter-group">
-                        <label htmlFor="accountSearch">Tìm tài khoản:</label>
-                        <input
-                            id="accountSearch"
-                            type="text"
-                            placeholder="Tìm theo tên hoặc UID..."
-                            value={searchTerm}
-                            onChange={handleSearchTermChange}
-                        />
-                    </div>
-                    <div className="action-buttons">
-                        <button
-                            className="action-btn start"
-                            onClick={handleStartSelected}
-                            disabled={selectedAccountIds.size === 0}
-                        >
-                            Start Selected ({selectedAccountIds.size})
-                        </button>
-                        <button
-                            className="action-btn stop"
-                            onClick={handleStopSelected}
-                            disabled={selectedAccountIds.size === 0}
-                        >
-                            Stop Selected ({selectedAccountIds.size})
-                        </button>
-                    </div>
-                </div>
-                <div className="table-container">
-                    <table className="crud-table">
+                <button onClick={handleLoadAccounts} className="load-button">LOAD</button>
+                <button onClick={handleStartSelected} className="start-button">START</button>
+                <button onClick={handleStopSelected} className="stop-button">STOP</button>
+            </div>
+
+            <div className="account-list-table">
+                {accounts.length > 0 ? (
+                    <table>
                         <thead>
                             <tr>
                                 <th>
@@ -179,14 +151,15 @@ function AccountList() {
                                         }}
                                     />
                                 </th>
-                                <th>Tên</th>
+                                <th>STT</th>
                                 <th>UID</th>
-                                <th>Avatar</th>
-                                <th>Danh mục</th>
+                                <th>Trạng thái</th>
+                                <th>Thành công</th>
+                                <th>Tình trạng</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {accounts.map((account) => (
+                            {accounts.map((account, index) => (
                                 <tr key={account.id}>
                                     <td>
                                         <input
@@ -195,21 +168,18 @@ function AccountList() {
                                             onChange={() => handleSelectAccount(account.id)}
                                         />
                                     </td>
-                                    <td>{account.name}</td>
+                                    <td>{index + 1}</td>
                                     <td>{account.uid}</td>
-                                    <td>
-                                        {account.avatar ? (
-                                            <img src={account.avatar} alt="Avatar" style={{ width: '50px', height: '50px', borderRadius: '50%', objectFit: 'cover' }} />
-                                        ) : (
-                                            'N/A'
-                                        )}
-                                    </td>
-                                    <td>{getCategoryName(account.categoryId)}</td>
+                                    <td>{account.status}</td>
+                                    <td>{account.successCount}</td>
+                                    <td>{account.message}</td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
-                </div>
+                ) : (
+                    <p>Không có tài khoản nào để hiển thị.</p>
+                )}
             </div>
         </div>
     );
