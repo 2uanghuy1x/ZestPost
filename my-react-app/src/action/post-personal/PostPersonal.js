@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './PostPersonal.css';
 import { csharpApi, fetchAccounts, fetchCategories } from '../../api';
 import ArticleManagement from '../../ArticleManagement'; // Import the ArticleManagement component
@@ -6,8 +6,8 @@ import ArticleManagement from '../../ArticleManagement'; // Import the ArticleMa
 const PostPersonal = () => {
     const [isArticleManagementOpen, setIsArticleManagementOpen] = useState(false);
     const [selectedArticles, setSelectedArticles] = useState([]);
-    const [generalConfig, setGeneralConfig] = useState({});
-    const [contentConfig, setContentConfig] = useState({});
+    // const [generalConfig, setGeneralConfig] = useState({}); // Removed unused state
+    // const [contentConfig, setContentConfig] = useState({}); // Removed unused state
 
     // Account management states
     const [accounts, setAccounts] = useState([]);
@@ -15,10 +15,31 @@ const PostPersonal = () => {
     const [selectedCategory, setSelectedCategory] = useState('');
     const [selectedAccountIds, setSelectedAccountIds] = useState(new Set());
 
+    const loadAccounts = useCallback(async () => {
+        try {
+            const data = await fetchAccounts();
+            let filteredAccounts = data;
+            if (selectedCategory) {
+                filteredAccounts = data.filter(account => account.categoryId === selectedCategory);
+            }
+            setAccounts(filteredAccounts);
+        } catch (error) {
+            console.error('Error fetching accounts:', error);
+        }
+    }, [selectedCategory, setAccounts]);
+
+    const loadCategories = async () => {
+        try {
+            const data = await fetchCategories();
+            setCategories(data);
+        } catch (error) {
+            console.error('Error fetching categories:', error);
+        }
+    };
+
     useEffect(() => {
         loadCategories();
         loadAccounts(); // Load accounts on initial render
-
         const handleMessage = (event) => {
             const message = event.data;
             if (message.action === 'accountsData') {
@@ -39,33 +60,10 @@ const PostPersonal = () => {
         };
 
         csharpApi.addEventListener('message', handleMessage);
-
         return () => {
             csharpApi.removeEventListener('message', handleMessage);
         };
-    }, []);
-
-    const loadAccounts = async () => {
-        try {
-            const data = await fetchAccounts();
-            let filteredAccounts = data;
-            if (selectedCategory) {
-                filteredAccounts = data.filter(account => account.categoryId === selectedCategory);
-            }
-            setAccounts(filteredAccounts);
-        } catch (error) {
-            console.error('Error fetching accounts:', error);
-        }
-    };
-
-    const loadCategories = async () => {
-        try {
-            const data = await fetchCategories();
-            setCategories(data);
-        } catch (error) {
-            console.error('Error fetching categories:', error);
-        }
-    };
+    }, [loadAccounts]); // Added loadAccounts to dependency array
 
     const handleLoadAccounts = () => {
         loadAccounts();
@@ -77,7 +75,7 @@ const PostPersonal = () => {
 
     useEffect(() => {
         loadAccounts(); // Reload accounts when category changes
-    }, [selectedCategory]);
+    }, [selectedCategory, loadAccounts]); // Added loadAccounts to dependency array
 
     const handleSelectAccount = (accountId) => {
         setSelectedAccountIds(prevSelected => {
@@ -135,20 +133,20 @@ const PostPersonal = () => {
         // Potentially update contentConfig with selected article content
         if (articles.length > 0) {
             // For simplicity, let's just take the content of the first selected article
-            setContentConfig(prev => ({ ...prev, content: articles[0].content }));
+            // setContentConfig(prev => ({ ...prev, content: articles[0].content })); // Removed unused state update
         } else {
-            setContentConfig(prev => ({ ...prev, content: '' }));
+            // setContentConfig(prev => ({ ...prev, content: '' })); // Removed unused state update
         }
         setIsArticleManagementOpen(false); // Close the modal after selection
     };
 
-    const handleGeneralConfigChange = (e) => {
-        setGeneralConfig({ ...generalConfig, [e.target.name]: e.target.value });
-    };
+    // const handleGeneralConfigChange = (e) => {
+    //     setGeneralConfig({ ...generalConfig, [e.target.name]: e.target.value });
+    // };
 
-    const handleContentConfigChange = (e) => {
-        setContentConfig({ ...contentConfig, [e.target.name]: e.target.value });
-    };
+    // const handleContentConfigChange = (e) => {
+    //     setContentConfig({ ...contentConfig, [e.target.name]: e.target.value });
+    // };
 
     return (
         <div className="post-personal-container">
