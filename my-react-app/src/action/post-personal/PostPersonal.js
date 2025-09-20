@@ -6,14 +6,28 @@ import ArticleManagement from '../../ArticleManagement'; // Import the ArticleMa
 const PostPersonal = () => {
     const [isArticleManagementOpen, setIsArticleManagementOpen] = useState(false);
     const [selectedArticles, setSelectedArticles] = useState([]);
-    // const [generalConfig, setGeneralConfig] = useState({}); // Removed unused state
-    // const [contentConfig, setContentConfig] = useState({}); // Removed unused state
 
     // Account management states
     const [accounts, setAccounts] = useState([]);
     const [categories, setCategories] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState('');
     const [selectedAccountIds, setSelectedAccountIds] = useState(new Set());
+
+    // Configuration states
+    const [concurrentThreads, setConcurrentThreads] = useState(1);
+    const [maxPostsPerAccount, setMaxPostsPerAccount] = useState(0);
+    const [switchAccountOnError, setSwitchAccountOnError] = useState(1);
+    const [switchAccountAfterPost, setSwitchAccountAfterPost] = useState(1);
+    const [minPostInterval, setMinPostInterval] = useState(1);
+    const [maxPostInterval, setMaxPostInterval] = useState(1);
+
+    const [commonConfig, setCommonConfig] = useState(true);
+    const [postOrder, setPostOrder] = useState('random'); // 'random' or 'sequential'
+    const [noDuplicatePosts, setNoDuplicatePosts] = useState(true);
+    const [imageUploadWaitTime, setImageUploadWaitTime] = useState(1);
+    const [includeBackgroundImage, setIncludeBackgroundImage] = useState(true);
+    const [commentAfterPost, setCommentAfterPost] = useState(true);
+    const [commentContent, setCommentContent] = useState('');
 
     const loadAccounts = useCallback(async () => {
         try {
@@ -100,7 +114,32 @@ const PostPersonal = () => {
             alert('Vui lòng chọn ít nhất một tài khoản để bắt đầu.');
             return;
         }
-        csharpApi.startAccounts(Array.from(selectedAccountIds));
+
+        if (selectedArticles.length === 0) {
+            alert('Vui lòng chọn nội dung bài viết để bắt đầu.');
+            return;
+        }
+
+        const config = {
+            selectedAccountIds: Array.from(selectedAccountIds),
+            selectedArticles: selectedArticles,
+            concurrentThreads,
+            maxPostsPerAccount,
+            switchAccountOnError,
+            switchAccountAfterPost,
+            minPostInterval,
+            maxPostInterval,
+            commonConfig,
+            postOrder,
+            noDuplicatePosts,
+            imageUploadWaitTime,
+            includeBackgroundImage,
+            commentAfterPost,
+            commentContent
+        };
+
+        console.log('Starting posting with config:', config);
+        csharpApi.startPosting(config);
         // Optionally, clear selection after starting
         // setSelectedAccountIds(new Set());
     };
@@ -130,23 +169,8 @@ const PostPersonal = () => {
     // Handler for when articles are selected in ArticleManagement
     const handleArticlesSelected = (articles) => {
         setSelectedArticles(articles);
-        // Potentially update contentConfig with selected article content
-        if (articles.length > 0) {
-            // For simplicity, let's just take the content of the first selected article
-            // setContentConfig(prev => ({ ...prev, content: articles[0].content })); // Removed unused state update
-        } else {
-            // setContentConfig(prev => ({ ...prev, content: '' })); // Removed unused state update
-        }
         setIsArticleManagementOpen(false); // Close the modal after selection
     };
-
-    // const handleGeneralConfigChange = (e) => {
-    //     setGeneralConfig({ ...generalConfig, [e.target.name]: e.target.value });
-    // };
-
-    // const handleContentConfigChange = (e) => {
-    //     setContentConfig({ ...contentConfig, [e.target.name]: e.target.value });
-    // };
 
     return (
         <div className="post-personal-container">
@@ -158,37 +182,67 @@ const PostPersonal = () => {
                     <div className="config-item">
                         <label className="config-label"><span role="img" aria-label="threads">⚙️</span> Số luồng chạy đồng thời <span className="tooltip">[?]</span></label>
                         <div className="input-group">
-                            <input type="number" defaultValue="1" className="small-input" />
+                            <input
+                                type="number"
+                                value={concurrentThreads}
+                                onChange={(e) => setConcurrentThreads(parseInt(e.target.value))}
+                                className="small-input"
+                            />
                             <span>luồng</span>
                         </div>
                     </div>
                     <div className="config-item">
                         <label className="config-label"><span role="img" aria-label="max-posts">📝</span> Mỗi tài khoản đăng tối đa</label>
                         <div className="input-group">
-                            <input type="number" defaultValue="0" className="small-input" />
+                            <input
+                                type="number"
+                                value={maxPostsPerAccount}
+                                onChange={(e) => setMaxPostsPerAccount(parseInt(e.target.value))}
+                                className="small-input"
+                            />
                             <span>bài viết</span>
                         </div>
                     </div>
                     <div className="config-item">
                         <label className="config-label"><span role="img" aria-label="switch-error">🔄</span> Chuyển tài khoản nếu đăng lỗi <span className="tooltip">[?]</span></label>
                         <div className="input-group">
-                            <input type="number" defaultValue="1" className="small-input" />
+                            <input
+                                type="number"
+                                value={switchAccountOnError}
+                                onChange={(e) => setSwitchAccountOnError(parseInt(e.target.value))}
+                                className="small-input"
+                            />
                             <span>bài viết</span>
                         </div>
                     </div>
                     <div className="config-item">
                         <label className="config-label"><span role="img" aria-label="switch-after-post">➡️</span> Chuyển tài khoản sau khi đăng</label>
                         <div className="input-group">
-                            <input type="number" defaultValue="1" className="small-input" />
+                            <input
+                                type="number"
+                                value={switchAccountAfterPost}
+                                onChange={(e) => setSwitchAccountAfterPost(parseInt(e.target.value))}
+                                className="small-input"
+                            />
                             <span>bài viết</span>
                         </div>
                     </div>
                     <div className="config-item">
                         <label className="config-label"><span role="img" aria-label="interval">⏱️</span> Khoảng cách 2 lần đăng liên tiếp <span className="tooltip">[?]</span></label>
                         <div className="input-group">
-                            <input type="number" defaultValue="1" className="range-input" />
+                            <input
+                                type="number"
+                                value={minPostInterval}
+                                onChange={(e) => setMinPostInterval(parseInt(e.target.value))}
+                                className="range-input"
+                            />
                             <span>-</span>
-                            <input type="number" defaultValue="1" className="range-input" />
+                            <input
+                                type="number"
+                                value={maxPostInterval}
+                                onChange={(e) => setMaxPostInterval(parseInt(e.target.value))}
+                                className="range-input"
+                            />
                             <span>giây</span>
                         </div>
                     </div>
@@ -198,7 +252,11 @@ const PostPersonal = () => {
                     <legend className="panel-legend">Cấu hình bài viết</legend>
                     <div className="config-row">
                         <label className="switch">
-                            <input type="checkbox" defaultChecked />
+                            <input
+                                type="checkbox"
+                                checked={commonConfig}
+                                onChange={(e) => setCommonConfig(e.target.checked)}
+                            />
                             <span className="slider round"></span>
                         </label>
                         <span>Cấu hình đăng chung cho tất cả các tài khoản</span>
@@ -209,21 +267,82 @@ const PostPersonal = () => {
                     </div>
 
                     <div className="radio-group config-row">
-                        <label><input type="radio" name="post-order" defaultChecked /> <span role="img" aria-label="random-post">🔀</span> Đăng ngẫu nhiên bài viết</label>
-                        <label><input type="radio" name="post-order" /> <span role="img" aria-label="sequential-post">🔢</span> Đăng theo thứ tự</label>
+                        <label>
+                            <input
+                                type="radio"
+                                name="post-order"
+                                value="random"
+                                checked={postOrder === 'random'}
+                                onChange={(e) => setPostOrder(e.target.value)}
+                            />
+                            <span role="img" aria-label="random-post">🔀</span> Đăng ngẫu nhiên bài viết
+                        </label>
+                        <label>
+                            <input
+                                type="radio"
+                                name="post-order"
+                                value="sequential"
+                                checked={postOrder === 'sequential'}
+                                onChange={(e) => setPostOrder(e.target.value)}
+                            />
+                            <span role="img" aria-label="sequential-post">🔢</span> Đăng theo thứ tự
+                        </label>
                     </div>
 
                     <div className="checkbox-group">
-                        <label className="config-row"><input type="checkbox" defaultChecked /> <span role="img" aria-label="no-duplicate">🚫</span> Không đăng trùng bài viết giữa các tài khoản</label>
+                        <label className="config-row">
+                            <input
+                                type="checkbox"
+                                checked={noDuplicatePosts}
+                                onChange={(e) => setNoDuplicatePosts(e.target.checked)}
+                            />
+                            <span role="img" aria-label="no-duplicate">🚫</span> Không đăng trùng bài viết giữa các tài khoản
+                        </label>
                         <div className="config-row config-row-inline">
-                            <label><input type="checkbox" defaultChecked /> <span role="img" aria-label="image-upload-time">⏳</span> Thời gian chờ tải ảnh lên</label>
-                            <input type="number" defaultValue="1" className="small-input" /> 
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    checked={commentAfterPost ? true : imageUploadWaitTime > 0} // This checkbox is now tied to image upload wait time, assuming it's related
+                                    onChange={(e) => {
+                                        // If unchecking, set wait time to 0. If checking, set to default 1.
+                                        setImageUploadWaitTime(e.target.checked ? 1 : 0);
+                                    }}
+                                />
+                                <span role="img" aria-label="image-upload-time">⏳</span> Thời gian chờ tải ảnh lên
+                            </label>
+                            <input
+                                type="number"
+                                value={imageUploadWaitTime}
+                                onChange={(e) => setImageUploadWaitTime(parseInt(e.target.value))}
+                                className="small-input"
+                                disabled={!imageUploadWaitTime} // Disable if the checkbox is unchecked (value is 0)
+                            /> 
                             <span>giây</span>
                         </div>
-                        <label className="config-row"><input type="checkbox" defaultChecked /> <span role="img" aria-label="background-image">🖼️</span> Kèm ảnh background khi đăng trạng thái</label>
-                        <label className="config-row"><input type="checkbox" defaultChecked /> <span role="img" aria-label="comment-after-post">💬</span> Bình luận vào bài viết sau khi đăng thành công</label>
+                        <label className="config-row">
+                            <input
+                                type="checkbox"
+                                checked={includeBackgroundImage}
+                                onChange={(e) => setIncludeBackgroundImage(e.target.checked)}
+                            />
+                            <span role="img" aria-label="background-image">🖼️</span> Kèm ảnh background khi đăng trạng thái
+                        </label>
+                        <label className="config-row">
+                            <input
+                                type="checkbox"
+                                checked={commentAfterPost}
+                                onChange={(e) => setCommentAfterPost(e.target.checked)}
+                            />
+                            <span role="img" aria-label="comment-after-post">💬</span> Bình luận vào bài viết sau khi đăng thành công
+                        </label>
                     </div>
-                    <button type="button" className="comment-guideline">Vui lòng nhập nội dung bình luận vào đây. Mỗi nội dung một dòng !</button>
+                    <textarea
+                        className="comment-guideline"
+                        placeholder="Vui lòng nhập nội dung bình luận vào đây. Mỗi nội dung một dòng !"
+                        value={commentContent}
+                        onChange={(e) => setCommentContent(e.target.value)}
+                        disabled={!commentAfterPost}
+                    ></textarea>
                 </fieldset>
             </div>
 
