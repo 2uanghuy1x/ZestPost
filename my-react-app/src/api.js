@@ -47,6 +47,7 @@ export const csharpApi = {
     
     // Post Article
     postArticle: (account) => post({ action: 'postArticle', payload: account }),
+    startPosting: (config) => post({ action: 'startPosting', payload: config }),
 
     // Event Listener Wrappers
     addEventListener: (event, handler) => {
@@ -103,4 +104,3 @@ export const fetchAccounts = async () => {
         csharpApi.getAccounts();
     });
 };
-
